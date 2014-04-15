@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}New Course{% endblock %}
+
+{% block header%}
+Edit quiz
+{% endblock %}
+
+{% block menu %}
+<li class="back alert"><a href="{% url 'courses:quiz_page' quiz.course.id quiz.id %}">Cancel</a></li>
+{% endblock %}
+
+{% block body %}
+
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+	<div id="random_quizes" style="display: none;">
+		<form action="{% url 'courses:edit_quiz_process' quiz.course.id quiz.id %}" method="post">
+			{% csrf_token %}
+
+			<h3>Question</h3>
+			<textarea name="question" rows="4" cols="50" placeholder="">{{ quiz.question }}</textarea>
+
+			<h3>Answer</h3>
+			<textarea name="answer" rows="4" cols="50" placeholder="">{{ quiz.answer }}</textarea>
+			</div>
+
+			</br>
+			<input class="css3it" type="submit" value="Submit" />
+		</form>
+	</div>
+
+<script>
+	this.reveal_answer = function() {
+		$("#reveal").hide();
+		$("#answer").fadeIn("slow");
+	};
+
+	$("#reveal").click(function(){
+		reveal_answer();
+	});
+
+	$( document ).ready(function() {
+		{% if answer %}
+		reveal_answer();
+		{% endif %}
+	});
+
+	MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
+		$("#random_quizes").fadeIn("slow");
+	})
+</script>
+{% endblock %}

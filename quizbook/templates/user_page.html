@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}My Courses{% endblock %}
+
+{% block header %}
+My courses
+{% endblock %}
+ 
+{% block menu %}
+<li><a href="{% url 'courses:index' %}">Courses</a></li>
+{% endblock %}
+
+{% block body %}
+
+    {% if courses %}
+        <ul id='course_list'>
+            {% for course in courses %}
+            <li><a href="{% url 'courses:detail' course.id %}">{{ course.name }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+    <ul><li>No courses in which enrolled.</li></ul>
+    {% endif %}
+
+{% endblock %}

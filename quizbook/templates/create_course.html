@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}New Course{% endblock %}
+
+{% block header%}
+Create a new course
+{% endblock %}
+
+{% block menu %}
+<li class="back"><a href="{% url 'courses:index' %}">Back to Courses</a></li>
+{% endblock %}
+{% block body %}
+
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+	<div id="random_quizes" style="display: none;">
+		<div id="quiz" style="">
+			<form action="{% url 'courses:new_course_process' %}" method="post">
+			{% csrf_token %}
+		
+				<h3>Name</h3>
+				<textarea name="name" rows="1" cols="50" placeholder=""></textarea>
+
+				<h3>Description</h3>
+				<textarea name="description" rows="4" cols="50" placeholder=""></textarea>
+				</br>
+				<input class="css3it" type="submit" value="Submit" />
+			</form>
+		</div>
+	</div>
+
+	<script>
+
+		this.reveal_answer = function() {
+			$("#reveal").hide();
+			$("#answer").fadeIn("slow");
+		};
+
+		$("#reveal").click(function(){
+			reveal_answer();
+		});
+
+		$( document ).ready(function() {
+    		{% if answer %}
+    		reveal_answer();
+    		{% endif %}
+		});
+
+		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
+			$("#random_quizes").fadeIn("slow");
+		})
+
+		
+	</script>
+
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block morehead%}
+<link rel="stylesheet" href="{{ STATIC_PREFIX }}/static/quiz/css/quiz_template.css" type="text/css" />
+{% endblock %}
+
+{% block title %}Course: {{ parent_course.name }}{% endblock %}
+
+{% block header%}
+Course: {{ parent_course.name }} <br>
+Creator: {{ quiz.creator }} <br>
+<!-- Date Created: {{ quiz.pub_date }} <br>
+Last Modified: {{ quiz.modified_date }} <br> -->
+{% if user_enrolled %}
+Grade: {{ grade }} <br>
+{% endif %}
+{% endblock %}
+
+{% block menu %}
+<li><a href="{% url 'courses:edit_quiz' parent_course.id quiz.id %}">Edit</a></li>
+
+{% if user_is_creator %}
+<li id="delete_button" id="delete_button" name="delete_button"><a href="#">Delete</a></li>
+<li id="really_delete_button" name="really_delete_button"><a href="{% url 'courses:delete_quiz' parent_course.id quiz.id %}">Confirm</a></li>
+{% endif %}
+
+<li class="back"><a href="{% url 'courses:detail' quiz.course.id %}">Back to {{ quiz.course.name }}</a></li>
+{% endblock %}
+
+{% block body %}
+
+
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+	<div id="random_quizes" style="display: none;">
+		<div id="quiz" style="">
+			<ul>
+				<li>{{ quiz.question }}</li>
+				<li>
+					<a id="reveal" href="#">Reveal Answer</a>
+					<div id="answer" style="display: none">{{ quiz.answer }}</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<script>
+
+		this.reveal_answer = function() {
+			$("#reveal").hide();
+			$("#answer").fadeIn("slow");
+		};
+
+		$("#reveal").click(function(){
+			reveal_answer();
+		});
+
+		$( document ).ready(function() {
+    		{% if answer %}
+    		reveal_answer();
+    		{% endif %}
+		});
+
+		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
+			$("#random_quizes").fadeIn("slow");
+		})
+
+		$("#delete_button").click(function(){
+			$('#delete_button').hide();
+			$('#really_delete_button').fadeIn();
+			$('#really_delete_button').delay(3000).fadeOut(0, function() {
+				$('#delete_button').show();
+			});
+			
+		});
+
+		
+	</script>
+
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block morehead%}
+<link rel="stylesheet" href="{{ STATIC_PREFIX }}/static/quiz/css/quiz_template.css" type="text/css" />
+{% endblock %}
+
+{% block title %}Course: {{ parent_course.name }}{% endblock %}
+
+{% block header%}
+Preview quiz
+{% endblock %}
+
+{% block menu %}
+<li class="back"><a href="{% url 'courses:detail' course.id %}">Back to {{ course.name }}</a></li>
+{% endblock %}
+
+{% block body %}
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+	<ul>
+	<li><h2>Question</h2>
+	{{ question }}</li>
+
+	<li><h2>Answer</h2>
+	<div id="answer">{{ answer }}</div></li>
+	</ul>
+
+	<form action="{% url 'courses:new_quiz_process' course.id %}" method="post">
+			{% csrf_token %}
+
+			<textarea style="display: none;" name="question" rows="4" cols="50" placeholder="">{{ question }}</textarea>
+
+			<textarea style="display: none;" name="answer" rows="4" cols="50" placeholder="">{{ answer }}</textarea>
+			<input class="css3it" type="submit" value="Submit" name="_submit"/>
+			<input class="css3it" type="button" value="Edit" onclick="goBack()" style="cursor: pointer;">
+		</form>
+
+	<script>
+		function goBack()
+		{
+			window.history.back()
+		}
+
+		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
+			$("#random_quizes").fadeIn("slow");
+		})
+
+		$("#delete_button").click(function(){
+			$('#delete_button').hide();
+			$('#really_delete_button').fadeIn();
+			$('#really_delete_button').delay(3000).fadeOut(0, function() {
+				$('#delete_button').show();
+			});
+			
+		});
+	</script>
+
+{% endblock %}

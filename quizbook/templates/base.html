@@ -1,0 +1,78 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>{% block title %}{% endblock %}</title>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+</script>
+<script type="text/javascript"
+  src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+
+<link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Bitter:400,700' rel='stylesheet' type='text/css'>
+<link href='http://fonts.googleapis.com/css?family=Nunito:400,300|Maven+Pro:400,500|Raleway:400,500' rel='stylesheet' type='text/css'>
+
+<link rel="stylesheet/less" href="{{ STATIC_URL }}style.less">
+<script src="{{ STATIC_URL }}less.js"></script>
+{% block morehead %}{% endblock %}
+ 
+</head>
+
+<div id="preamble" style="display: none">
+	$\newcommand{\dfn}[1] {\textsc #1 } \newcommand{\power}[1] {\mathcal{P}( #1 )} \newcommand{\dominated} {\preccurlyeq} \newcommand{\seg}[1] {\text{seg } #1 } \newcommand{\dom}[1] {\text{dom } #1 } \newcommand{\fld}[1] {\text{fld } #1 } \newcommand{\ran}[1] {\text{ran } #1 } \newcommand{\ist}[1] {\text{it } #1 } \newcommand{\istt}[1] {\text{it }{\tuple #1 }} \newcommand{\naturals} {\mathbb{N}} \newcommand{\integers} {\mathbb{Z}} \newcommand{\posint} {\mathbb{Z}^+} \newcommand{\rationals} {\mathbb{Q}} \newcommand{\reals} {\mathbb{R}} \newcommand{\card}[1] {\text{card } #1 } \newcommand{\rank}[1] {\text{rank } #1 } \newcommand{\note}[1] {\begin{framed} \textbf{Note:} #1 \end{framed}} \newcommand{\context}[1]{\textit{\textbf{Context}: #1 }\newline} \newcommand{\setof}[1] {\left \{ #1 \right \}} \newcommand{\tuple}[1] {\left \langle #1 \right \rangle} \newcommand{\image}[1] {\lbrack #1 \rbrack} \newcommand{\fnc}[1] {\mathcal #1 } \newcommand{\fnk}[1] {\mathfrak #1 } \newcommand{\tiff} {\text{ iff }} \newcommand{\univ}[1]{ \abs{\fnk #1 }} \newcommand{\rl}[1]{ \hfill [ #1 ]} \newcommand{\ind} {\hspace{4 mm}} \newcommand{\df} {\coloneqq} \newcommand{\ein} {\text{ }\underline\in\text{ }} \newcommand{\equin} {\approx} \newcommand{\ldir}{($\Leftarrow$)\xspace} \newcommand{\rdir}{($\Rightarrow$)\xspace} \newcommand{\str}{$(\ast)$\xspace} \newcommand{\eqhyp}{\underset{H}{=}} \newcommand{\eqstr}{\overset{\ast}{=}} \newcommand{\divides}{\mid} \newcommand{\difset}[1]{\mathsf #1 } \newcommand{\nth}{\text{th}} \newcommand{\wand}{\text{ and }} \newcommand{\topo}{\fnc{T}} \newcommand{\fto}{\longrightarrow} \newcommand{\closure}[1]{\overline #1 } % closure \newcommand{\inter}[1]{\text{Int}( #1 )} % interior \newcommand{\boundary}[1]{\partial{( #1 )}} % boundary \newcommand{\comp}{\circ} % composition \newcommand{\ccc}{countable chain condition\xspace} \newcommand{\func}[3]{ #1 : #2 \fto #3 } \newcommand{\st}{\;\middle\vert\;} \newcommand{\preimage}[2]{ #1 ^{-1}\image #2 } \newcommand{\dx}{\,\mathrm{d}x} \newcommand{\homeo}{\cong} \newcommand{\anki}[3]{\begin{framed}{\textbf{Question:}\\ #1 \\\textbf{Answer:}\\ #2 \\\textbf{Tags:}\\ #3 }\end{framed}} \newcommand{\emstring}{\ensuremath{\epsilon}} % Text \newcommand\wiff{\ifnum\spacefactor=1001 If and only if\xspace\else if and only if\xspace\fi} \newcommand\wlg{\ifnum\spacefactor=1001 Without loss of generality\xspace\else without loss of generality\xspace\fi} \newcommand\wrt{\ifnum\spacefactor=1001 With respect to\xspace\else with respect to\xspace\fi} \newcommand\lindel{\ifnum\spacefactor=1001 Lindel\"{o}f\xspace\else Lindel\"{o}f\xspace\fi} \newcommand\zorn{\ifnum\spacefactor=1001 Zorn's Lemma\xspace\else Zorn's Lemma\xspace\fi} \newcommand\nonem{\ifnum\spacefactor=1001 Nonempty\xspace\else nonempty\xspace\fi} \newcommand\dfa{\ifnum\spacefactor=1001 DFA\xspace\else DFA\xspace\fi} % Delimiters \DeclarePairedDelimiter\abs{\lvert}{\rvert} \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil} \DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor} % Shortcuts \newcommand{\emset}{\emptyset} \newcommand{\rest}{\upharpoonright} \newcommand{\cont}{\perp} \newcommand{\nand}{\mid} \newcommand{\iso}{\cong} \newcommand{\bto}{\Rightarrow} % Redefinitions \renewcommand{\phi}{\varphi} \renewcommand{\epsilon}{\varepsilon} \renewcommand{\mod}[1]{\text{Mod }{#1}} \let\biff\iff \let\iff\leftrightarrow \renewcommand{\inplus}{\ensuremath{\stackrel{*}{\in}}}$
+</div>
+ 
+<body id="index" class="home">
+
+	<div id="main">
+	
+	<div id="logo">
+		<span><a href="/" style="color: white">Quiz Book</a></span>
+		<span style="font-size: 14px;">{{ quote }}</span>
+		<div id='cssmenu'>
+		<ul>
+		{% if user %}
+			<li><a href="{% url 'home' %}" class="icon-logo">Home</a></li>
+		{% else %}
+			<li><a href="{% url 'home' %}" class="icon-logo">Anonymous</a></li>
+		{% endif %}
+		{% block menu %}{% endblock %}
+		{% if user %}
+			<li class="back"><a href="{% url 'logout' %}">Logout</a></li>
+		{% else %}
+			{% if not home %}
+			<li class="back"><a href="{% url 'home' %}">Sign In</a></li>
+			{% endif %}
+		{% endif %}
+		</ul>
+		</div>
+	</div>
+	
+	
+
+	<div id="header">
+		{% block header %}{% endblock %}
+	</div>
+
+
+	<div id="content">
+		{% block body %}{% endblock %}
+	</div>
+	
+	</div>
+	<footer>
+		Quiz Book - Minimalist Study Tool
+	</footer>
+
+	<script>
+	$(document).ready(function() {
+	</script>
+</body>
+</html>

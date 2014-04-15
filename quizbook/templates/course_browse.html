@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Course: {{ course.name }}{% endblock %}
+
+
+{% block header%}
+Course: {{ course.name }}
+{% endblock %}
+
+{% block menu %}
+<!-- <li><a href="{% url 'courses:random_quiz' course.id %}">Quiz</a></li> -->
+<li><a href="{% url 'courses:new_quiz_page' course.id %}">New</a></li>
+
+{% if user_enrolled %}
+<li><a href="{% url 'courses:practise' course.id %}">Practise</a></li>
+<li><a href="{% url 'courses:drop' course.id %}">Drop</a></li>
+{% else %}
+<li><a href="{% url 'courses:enroll' course.id %}">Enroll</a></li>
+{% endif %}
+
+{% if user_is_creator %}
+<li id="delete_button" name="delete_button"><a href="#" >Delete</a></li>
+<li id="really_delete_button" name="really_delete_button"><a href="{% url 'courses:delete_course' course.id %}" >Confirm</a></li>
+{% endif %}
+
+<li class="back"><a href="{% url 'courses:index' %}">Back to Courses</a></li>
+
+{% endblock %}
+
+
+{% block body %}
+	{% if error_message %}<strong>{{ error_message }}</strong>{% endif %}
+
+	<div id="quiz_list" style="display: none">
+		<!-- <h2>Quiz List<h2> -->
+		{% if quizes %}
+		    <ul>
+		    {% for quiz in quizes %}
+		        <li><a href="{{ quiz.id }}/">{{ quiz.question|truncatechars:90 }}</a></li>
+		    {% endfor %}
+		    </ul>
+		{% else %}
+		    <ul><li>No quizes are available.</li></ul>
+		{% endif %}
+	</div>
+
+	<script>
+		this.random_quiz = function(){
+			var length = $("#random_quizes #quiz").length;
+			var ran = Math.floor(Math.random()*length) + 1;
+			$("#random_quizes #quiz:nth-child(" + ran + ")").fadeIn("slow");
+		};
+
+		this.reset_quizes = function(){
+			$("#random_quizes #quiz").hide();
+			reset_answers();
+		};
+
+		this.reveal_list = function() {
+			reset_quizes();
+			$("#quiz_list").fadeIn("slow");
+		};
+		
+		$("#random_button").click(function(){
+			$("#quiz_list").hide();
+			reset_quizes();
+  			random_quiz();
+		});
+
+		$("#quiz_list_button").click(function(){
+			reveal_list();
+		});
+
+		{% for quiz in quizes %}
+		$("#reveal{{ forloop.counter }}").click(function(){
+			$("#reveal{{ forloop.counter }}").hide();
+			$("#answer{{ forloop.counter }}").fadeIn("slow");
+		});
+		{% endfor %}
+
+		this.reset_answers = function() {
+			{% for quiz in quizes %}
+			$("#reveal{{ forloop.counter }}").show();
+			$("#answer{{ forloop.counter }}").hide();
+			{% endfor %}
+		};
+
+		$("#delete_button").click(function(){
+			$('#delete_button').hide();
+			$('#really_delete_button').fadeIn();
+			$('#really_delete_button').delay(3000).fadeOut(0, function() {
+				$('#delete_button').show();
+			});
+			
+		});
+
+		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
+			reveal_list();
+		})
+		
+	</script>
+
+	
+{% endblock %}
