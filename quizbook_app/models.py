@@ -62,4 +62,25 @@ class Quote(models.Model):
 	text = models.CharField(max_length=1000)
 	author = models.CharField(max_length=100)
 
+class Book(models.Model):
+	name        = models.CharField(max_length=100)
+	description = models.CharField(max_length=1000)
+	create_date = models.DateTimeField(auto_now=True, blank=True)
+	pub_date    = models.DateTimeField('date published')
+	creator     = models.CharField(max_length=200, default='Anonymous')
+
+	def __unicode__(self):
+		return self.name
+
+class Chapter(models.Model):
+	name = models.CharField(max_length=100)
+	book = models.ForeignKey(Book)
+
+class Section(models.Model):
+	name = models.CharField(max_length=100)
+	chapter = models.ForeignKey(Chapter)
+
+class 
+
+
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
