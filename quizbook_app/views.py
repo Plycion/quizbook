@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from quizbook_app.forms import AuthenticateForm, UserCreateForm
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
-from quizbook_app.models import Course, Quiz, Grade, Practise, Quote
+from quizbook_app.models import Course, Quiz, QuizRecord, Grade, Practise, Quote
 
 def get_quote():
 	quote = Quote.objects.order_by('?')[0]
@@ -32,15 +32,16 @@ def get_username_or_anon(user):
 	else:
 		return "Anonymous"
 
-def get_or_create_grade(now_user, quiz):
+def get_or_create_quiz_record(user, quiz):
 	try:
-		grade_model = quiz.grade_set.get(user=now_user)
-	except Grade.DoesNotExist:
-		grade_model = Grade()
-		grade_model.quiz = quiz
-		grade_model.user = now_user
+		print >>sys.stderr, ">>>>> fetched quiz record for user %s" % (user.username)
+		quiz_record = QuizRecord.objects.get(user = user, quiz = quiz)
+	except QuizRecord.DoesNotExist:
+		print >>sys.stderr, ">>>>> created new quiz record for user %s" % (user.username)
+		quiz_record = QuizRecord.objects.create_quiz_record(user = user, quiz = quiz)
 
-	return grade_model
+
+	return quiz_record
 
 def is_current_user_enrolled(request, course_id):
 	return request.user.is_authenticated() and request.user.course_set.filter(pk=course_id)
@@ -191,15 +192,9 @@ def update_quiz(request, course_id, quiz_id):
 	now_user = get_user_or_none(request)
 
 	if now_user:
-		try:
-			grade_model = quiz.grade_set.get(user=now_user)
-		except Grade.DoesNotExist:
-			grade_model = Grade()
-			grade_model.quiz = quiz
-			grade_model.user = now_user
-
-		grade_model.grade = form.cleaned_data['grade']
-		grade_model.save()
+		quiz_record = QuizRecord.objects.get(user = now_user, quiz = quiz)
+		new_grade = Grade(quiz_record = quiz_record, grade = form.cleaned_data['grade'])
+		new_grade.save()
 	else:
 		# user not logged in
 		return HttpResponseRedirect(reverse('home', args=()))
@@ -280,24 +275,35 @@ def quiz(request, course_id):
 	return HttpResponseRedirect('/courses/')
 
 def quiz_page(request, course_id, quiz_id, answer=""):
-	quiz = get_object_or_404(Quiz, pk=quiz_id)
-	course = Course.objects.get(pk=course_id)
-	now_user = get_user_or_none(request)
-	user_is_creator = False
-
-	if now_user:
-		grade_model = get_or_create_grade(now_user, quiz)
-		grade = grade_model.grade
-		user_is_creator = (quiz.creator == now_user.username)
-	else:
-		grade = 0
+	quiz     = get_object_or_404(Quiz, pk=quiz_id)
+	course   = Course.objects.get(pk=course_id)
+	user     = get_user_or_none(request)
 
 	user_enrolled = is_current_user_enrolled(request, course_id)
+	user_is_creator = user and (quiz.creator == user.username)
+
+	if user_enrolled:
+		quiz_record = get_or_create_quiz_record(user = user, quiz = quiz)
+		grade_list  = quiz_record.grade_set.all()
+
+		sorted_by_date = grade_list.order_by('created_at')
+
+		if not sorted_by_date:
+			print >>sys.stderr, ">>>>> empty record for user %s" % (user.username)
+
+		first_grade = list(sorted_by_date)[0]
+		last_grade = list(sorted_by_date)[-1]
+	else:
+		quiz_record = grade_list = first_grade = last_grade = None
+	
 	context = {'quiz': quiz, 'parent_course': course,
 		'answer': answer,
-		'user': now_user,
+		'user': user,
 		'user_enrolled': user_enrolled,
-		'grade': grade,
+		'quiz_record': quiz_record,
+		'grade_list': grade_list,
+		'first_grade' : first_grade,
+		'last_grade' : last_grade,
 		'user_is_creator': user_is_creator}
 
 	return render(request, 'quiz_browse.html', context)
@@ -432,7 +438,8 @@ def practise(request, course_id, answer=None):
 		practise.save()
 
 	quiz = practise.top()
-	grade = get_or_create_grade(user, quiz).grade
+	grade_list = QuizRecord.objects.get(quiz = quiz, user = user).grade_set.order_by('created_at')
+	grade = list(grade_list)[-1]
 	return render(request, 'practise_quiz.html',
 		{'quiz': quiz,
 		'grade': grade,

@@ -26,14 +26,37 @@ class Quiz(models.Model):
 	def __unicode__(self):
 		return unicode(self.course) + " : " + self.question
 
+
+class QuizRecordManager(models.Manager):
+	def create_quiz_record(self, quiz, user):
+		"""
+		Creates a new QuizRecord, adds a grade 0 to it, and returns the result.
+		"""
+		quiz_record = self.create(quiz = quiz, user = user)
+		grade = Grade(quiz_record = quiz_record, grade = 0)
+		grade.save()
+		return quiz_record
+
+
+class QuizRecord(models.Model):
+	quiz        = models.ForeignKey(Quiz)
+	user        = models.ForeignKey(User)
+	created_at  = models.DateTimeField(auto_now_add=True)
+	updated_at  = models.DateTimeField(auto_now=True)
+
+	objects = QuizRecordManager()
+
+
 class Grade(models.Model):
-	grade = models.IntegerField(default=0)
-	quiz  = models.ForeignKey(Quiz)
-	user  = models.ForeignKey(User)  
+	grade       = models.IntegerField(default=0)
+	quiz_record = models.ForeignKey(QuizRecord)
+	created_at  = models.DateTimeField(auto_now_add=True)
+	updated_at  = models.DateTimeField(auto_now=True)
+
 
 class UserProfile(models.Model):
-    user    = models.OneToOneField(User)
-    follows = models.ManyToManyField('self', related_name='followed_by', symmetrical=False)
+	user    = models.OneToOneField(User)
+	follows = models.ManyToManyField('self', related_name='followed_by', symmetrical=False)
 
 class Practise(models.Model):
 	course    = models.ForeignKey(Course)
