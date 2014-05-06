@@ -1,10 +1,10 @@
 import sys
-import random
 import cStringIO as StringIO
 import datetime
 import os
 
 from django import forms
+from django.db import models
 from django.utils import timezone
 from django.template import RequestContext, loader
 from django.shortcuts import get_object_or_404, render, redirect
@@ -14,11 +14,15 @@ from django.contrib.auth.decorators import login_required
 from quizbook_app.forms import AuthenticateForm, UserCreateForm
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
-from quizbook_app.models import Course, Quiz, QuizRecord, Grade, Practise, Quote
+from quizbook_app.models import Course, Quiz, QuizRecord, Grade, Practice, CoursePractice, Quote
+from quizbook_app.power import print_terminal
 
 def get_quote():
-	quote = Quote.objects.order_by('?')[0]
-	return '''"%s" (%s)''' % (quote.text, quote.author)
+	try:
+		quote = Quote.objects.order_by('?')[0]
+		return '''"%s" (%s)''' % (quote.text, quote.author)
+	except:
+		return ""
 
 def get_user_or_none(request):
 	if request.user.is_authenticated():
@@ -34,7 +38,7 @@ def get_username_or_anon(user):
 
 def get_or_create_quiz_record(user, quiz):
 	try:
-		print >>sys.stderr, ">>>>> fetched quiz record for user %s" % (user.username)
+		print_terminal(">>>>> fetched quiz record for user %s" % (user.username))
 		quiz_record = QuizRecord.objects.get(user = user, quiz = quiz)
 	except QuizRecord.DoesNotExist:
 		print >>sys.stderr, ">>>>> created new quiz record for user %s" % (user.username)
@@ -59,7 +63,7 @@ def detail(request, course_id, message=None):
 		raise Http404
 
 	user_enrolled = is_current_user_enrolled(request, course_id)
-	quizes = course.quiz_set.all()
+	quizes = Quiz.objects.filter(course=course)
 	user = get_user_or_none(request)
 	user_is_creator = False
 
@@ -79,17 +83,7 @@ def detail(request, course_id, message=None):
 def create_restart_practice(request, course_id):
 	course = get_object_or_404(Course, pk=course_id)
 	user = request.user
-	if user.practise_set:
-		for practise in user.practise_set.all():
-			practise.delete()
-
-	practise           = Practise()
-	practise.user      = user
-	practise.course    = course
-	practise.last_quiz = course.quiz_set.all()[0]
-	practise.save()
-	practise.populate()
-	practise.save()
+	course.enroll_user(user)
 
 @login_required
 def enroll_user_in_course(request, course_id):
@@ -101,7 +95,9 @@ def enroll_user_in_course(request, course_id):
 	user = request.user
 	user.course_set.add(course)
 
-	# remove all previous practises
+	course.update_user_records(user)
+
+	# remove all previous practices
 	create_restart_practice(request, course_id)
 
 	return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
@@ -113,9 +109,9 @@ def drop_user_from_course(request, course_id):
 	user.course_set.remove(now_course)
 
 	try:
-		practise = user.practise_set.get(course=now_course)
-		practise.delete()
-	except Practise.DoesNotExist:
+		practice = user.practice_set.get(course=now_course)
+		practice.delete()
+	except Practice.DoesNotExist:
 		pass
 
 	return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
@@ -161,23 +157,18 @@ def new_quiz_process(request, course_id):
 	course = get_object_or_404(Course, pk=course_id)
 
 	if '_submit' in request.POST:
-		new_quiz = Quiz()
-		new_quiz.course   = course
-		new_quiz.question = question
-		new_quiz.answer   = answer
-		new_quiz.pub_date = timezone.now()
-
+		creator = None
 		user = get_user_or_none(request)
 		if user:
-			new_quiz.creator = user.username
+			creator = user.username
 
-		new_quiz.save()
+		course.create_quiz(question=question, answer=answer,
+							creator=creator)
 		return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
 	
 	elif '_preview' in request.POST:
 		context = {'question': question, 'answer': answer, 'course': course}
 		return render(request, 'quiz_preview.html', context)
-	
 
 def update_quiz(request, course_id, quiz_id):
 	if request.method != 'POST':
@@ -249,20 +240,20 @@ def delete_course(request, course_id):
 
 	return HttpResponseRedirect(reverse('courses:index', args=()))
 
-def random_quiz(request, course_id):
-	print >>sys.stderr, "IN RANDOM QUIZ"
-	try:
-		course = Course.objects.get(pk=course_id)
-	except Course.DoesNotExist:
-		raise Http404
+# def random_quiz(request, course_id):
+# 	print >>sys.stderr, ">>>> IN RANDOM QUIZ"
+# 	try:
+# 		course = Course.objects.get(pk=course_id)
+# 	except Course.DoesNotExist:
+# 		raise Http404
 
-	quizes = course.quiz_set.all()
+# 	quizes = course.quiz_set.all()
 
-	try:
-		random_quiz = sorted(quizes, key=lambda x: random.random())[0]
-		return HttpResponseRedirect(reverse('courses:quiz_page', args=(random_quiz.course.id, random_quiz.id)))
-	except IndexError:
-		return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
+# 	try:
+# 		random_quiz = sorted(quizes, key=lambda x: random.random())[0]
+# 		return HttpResponseRedirect(reverse('courses:quiz_page', args=(random_quiz.course.id, random_quiz.id)))
+# 	except IndexError:
+# 		return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
 
 def quiz(request, course_id):
 	chosen = request.POST['quiz']
@@ -312,7 +303,7 @@ def enter_answer(request, quiz_id):
 	quiz = get_object_or_404(Quiz, pk=quiz_id)
 	answer = request.POST['answer']
 
-	return practise(request, quiz.course.id, answer=answer)
+	return practice(request, quiz.course.id, answer=answer)
 
 def text_courses(request):
 	output = StringIO.StringIO()
@@ -419,31 +410,32 @@ def logout_view(request):
 	return HttpResponseRedirect(reverse('home', args=()))
 
 @login_required
-def practise(request, course_id, answer=None):
-	now_course = get_object_or_404(Course, pk=course_id)
+def practice_answer(request, quiz_id):
+	quiz = get_object_or_404(Quiz, pk=quiz_id)
+	user = request.user
+	answer = request.POST['answer']
+	grade = QuizRecord.objects.get(quiz = quiz, user = user).get_last_grade()
+
+	context = {'quiz': quiz, 'grade': grade, 'answer': answer}
+	return render(request, 'practice_answer.html', context)
+
+@login_required
+def practice_question(request, course_id):
+	course = get_object_or_404(Course, pk=course_id)
 
 	if not is_current_user_enrolled(request, course_id):
-		return HttpResponse("%s is not enrolled in %s" % (user.username, now_course.name))
+		return HttpResponse("%s is not enrolled in %s" % (user.username, course.name))
 
 	user = request.user
+	practice = course.get_practice_for_user(user)
 
-	try:
-		practise = user.practise_set.get(course=now_course)
-	except Practise.DoesNotExist:
-		create_restart_practice(request, course_id)
-		practise = user.practise_set.get(course=now_course)
+	print_terminal("Practice count is %d" % practice.count())
 
-	if not answer:
-		practise.refresh()
-		practise.save()
+	quiz = practice.pop_quiz()
+	print_terminal("Popped Quiz: %s" % str(quiz))
 
-	quiz = practise.top()
-	grade_list = QuizRecord.objects.get(quiz = quiz, user = user).grade_set.order_by('created_at')
-	grade = list(grade_list)[-1]
-	return render(request, 'practise_quiz.html',
-		{'quiz': quiz,
-		'grade': grade,
-		'answer': answer})
+	context = {'quiz': quiz}
+	return render(request, 'practise_question.html', context)
 
 
 """ Forms Section """

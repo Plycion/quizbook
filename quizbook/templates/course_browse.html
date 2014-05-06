@@ -8,7 +8,6 @@ Course: {{ course.name }}
 {% endblock %}
 
 {% block menu %}
-<!-- <li><a href="{% url 'courses:random_quiz' course.id %}">Quiz</a></li> -->
 <li><a href="{% url 'courses:new_quiz_page' course.id %}">New</a></li>
 
 {% if user_enrolled %}

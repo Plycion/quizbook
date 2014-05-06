@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block morehead%}
+<link rel="stylesheet" href="{{ STATIC_PREFIX }}/static/quiz/css/quiz_template.css" type="text/css" />
+{% endblock %}
+
+{% block title %}Course: {{ quiz.course.name }}{% endblock %}
+
+{% block header%}
+Practice session for {{ quiz.course.name }}
+{% endblock %}
+
+{% block menu %}
+<li><a href="{% url 'courses:practise' quiz.course.id %}">Next</a></li>
+<li><a href="#" id="delete_button" id="delete_button" name="delete_button">Delete</a></li>
+<li id="really_delete_button" name="really_delete_button"><a href="{% url 'courses:delete_quiz' quiz.course.id quiz.id %}">Confirm</a></li>
+<li class="back"><a href="{% url 'courses:detail' quiz.course.id %}">Back to {{ quiz.course.name }}</a></li>
+{% endblock %}
+
+{% block body %}
+
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+	<div id="random_quizes" style="display: none;">
+		<div id="quiz" style="">
+			<ul>
+				<li>{{ quiz.question }}</li>
+			</ul>
+			<div id="answer_compare">
+				<div id="your_answer">
+					<h2>Your Answer</h2>
+					{{ answer }}
+				</div>
+
+				<div id="answer_recorded">
+					<h2>Answer</h2>
+					{{ quiz.answer }}
+				</div>
+			</div>
+			<form id="gradeform" action="{% url 'courses:update_quiz' quiz.course.id quiz.id %}" method="post">
+				{% csrf_token %}
+				Grade: <input type="number" name="grade" rows="1" cols="50" value="{{ grade }}" min="0" max="5"></input>
+				<input class="css3it" type="submit" value="Update" />
+			</form>
+		</div>
+	</div>
+
+	<script>
+
+		$( document ).ready(function() {
+
+		});
+
+		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
+			$("#random_quizes").fadeIn("slow");
+		})
+
+		$("#delete_button").click(function(){
+			$('#delete_button').hide();
+			$('#really_delete_button').fadeIn();
+			$('#really_delete_button').delay(3000).fadeOut(0, function() {
+				$('#delete_button').show();
+			});
+			
+		});
+
+		
+	</script>
+
+{% endblock %}
