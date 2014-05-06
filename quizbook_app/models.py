@@ -39,13 +39,12 @@ class Course(models.Model):
 		user.course_set.add(self)
 		self.update_user_records(user)
 
+	def drop_user(self, user):
 		# delete previous practices for course
 		for practice in CoursePractice.objects.filter(course=self, user=user):
 			practice.delete()
-		
-		practice = CoursePractice(user=user, course=self)
-		practice.populate()
-		practice.save()
+
+		user.course_set.remove(self)
 
 	def update_practices_with_quiz(self, quiz):
 		for p in CoursePractice.objects.filter(course=self):
@@ -53,8 +52,10 @@ class Course(models.Model):
 
 	def create_quiz(self, question, answer, creator=None):
 		quiz = Quiz(course=self, question=question,
-					answer=answer, pub_date=timezone.now(),
-					creator=creator)
+					answer=answer, pub_date=timezone.now())
+		if creator:
+			quiz.creator = creator
+
 		quiz.save()
 		self.update_practices_with_quiz(quiz)
 
@@ -72,13 +73,13 @@ class Course(models.Model):
 		try:
 			# raise Practice.DoesNotExist
 			practice = CoursePractice.objects.get(course=self, user=user)
-			print_terminal("Retrieving pre-existing practice")
+			print_terminal("Retrieving pre-existing practice: [%s]" % str(practice))
 		
 		except Practice.DoesNotExist:
 			practice = CoursePractice(course=self, user=user)
 			practice.save()
 
-			for record in self.get_records():
+			for record in self.get_records().filter(user=user):
 				print_terminal("Adding record")
 				practice.add_quiz_record(record)
 
@@ -100,6 +101,9 @@ class Quiz(models.Model):
 	def __unicode__(self):
 		return "course[%s], question[%s]" % (unicode(self.course), self.question)
 
+	def update_mod_date(self):
+		self.modified_date = timezone.now()
+		self.save()
 
 class QuizRecordManager(models.Manager):
 	def create_quiz_record(self, quiz, user):
@@ -129,6 +133,14 @@ class QuizRecord(models.Model):
 	def get_last_grade(self):
 		return Grade.objects.filter(quiz_record=self).order_by('-created_at')[0].get_grade()
 
+	def add_grade(self, grade):
+		grade = Grade(quiz_record=self, grade=grade)
+		grade.save()
+		self.update_tokens()
+
+	def update_tokens(self):
+		for token in RecordToken.objects.filter(quiz_record=self):
+			token.adjust_weight(self.get_last_grade())
 
 class Grade(models.Model):
 	grade       = models.IntegerField(default=0, validators=[lambda x: 0 <= x and x <= 5])
@@ -150,7 +162,12 @@ class Practice(models.Model):
 	# temp_quizzes = models.ManyToManyField(Quiz, related_name='quizzes')
 	
 	def __unicode__(self):
-		return "user[%s]" % self.user.username
+		weights = []
+		for token in self.get_tokens():
+			weights.append(token.get_weight())
+		return "user[%s], count[%d], weights%s" % (self.user.username,
+													self.count(),
+													str(weights))
 
 	def count(self):
 		return RecordToken.objects.filter(practice=self).count()
@@ -177,7 +194,7 @@ class Practice(models.Model):
 			raise TokenExistsException
 
 		# weight = record.get_last_grade()
-		weight = 10
+		weight = 0
 		token = RecordToken(practice=self, quiz_record=record, weight=weight)
 		token.save()
 
@@ -185,7 +202,7 @@ class Practice(models.Model):
 		if self.is_empty():
 			raise models_exceptions.PracticeIsEmptyException
 
-		return RecordToken.objects.filter(practice=self).order_by('-weight')[0]
+		return RecordToken.objects.filter(practice=self).order_by('weight')[0]
 
 	def top_record(self):
 		return self.top_token().quiz_record
@@ -195,12 +212,14 @@ class Practice(models.Model):
 
 	def pop_quiz(self):
 		top_token = self.top_token()
-		top_token.weight = 0
-		top_token.save()
+		top_token.adjust_weight(5)
 		return top_token.quiz_record.quiz
 
+	def get_tokens(self):
+		return RecordToken.objects.filter(practice=self)
+
 	def reset_weights(self):
-		for token in RecordToken.objects.filter(practice=self):
+		for token in self.get_tokens():
 			token.weight = 10
 			token.save()
 
@@ -221,6 +240,12 @@ class RecordToken(models.Model):
 	def __unicode__(self):
 		return "practice[%s], quiz_record[%s], weight[%d]" % (str(self.practice), str(self.quiz_record), self.weight)
 
+	def get_weight(self):
+		return self.weight
+
+	def adjust_weight(self, weight):
+		self.weight = weight
+		self.save()
 
 class Quote(models.Model):
 	text = models.CharField(max_length=1000)

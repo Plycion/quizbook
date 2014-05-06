@@ -80,11 +80,6 @@ def detail(request, course_id, message=None):
 
 	return render(request, 'course_browse.html', context)
 
-def create_restart_practice(request, course_id):
-	course = get_object_or_404(Course, pk=course_id)
-	user = request.user
-	course.enroll_user(user)
-
 @login_required
 def enroll_user_in_course(request, course_id):
 	course = get_object_or_404(Course, pk=course_id)
@@ -95,24 +90,16 @@ def enroll_user_in_course(request, course_id):
 	user = request.user
 	user.course_set.add(course)
 
+	course.enroll_user(user)
 	course.update_user_records(user)
-
-	# remove all previous practices
-	create_restart_practice(request, course_id)
 
 	return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
 
 @login_required
 def drop_user_from_course(request, course_id):
 	user = request.user
-	now_course = get_object_or_404(Course, pk=course_id)
-	user.course_set.remove(now_course)
-
-	try:
-		practice = user.practice_set.get(course=now_course)
-		practice.delete()
-	except Practice.DoesNotExist:
-		pass
+	course = get_object_or_404(Course, pk=course_id)
+	course.drop_user(user)
 
 	return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
 
@@ -171,6 +158,10 @@ def new_quiz_process(request, course_id):
 		return render(request, 'quiz_preview.html', context)
 
 def update_quiz(request, course_id, quiz_id):
+	user = get_user_or_none(request)
+	if not user:
+		return HttpResponseRedirect(reverse('home', args=()))
+
 	if request.method != 'POST':
 		return HttpResponse("No Update Posted.")
 
@@ -180,18 +171,12 @@ def update_quiz(request, course_id, quiz_id):
 		return HttpResponse("Invalid Form.")
 
 	quiz = get_object_or_404(Quiz, pk=quiz_id)
-	now_user = get_user_or_none(request)
+	grade = form.cleaned_data['grade']
 
-	if now_user:
-		quiz_record = QuizRecord.objects.get(user = now_user, quiz = quiz)
-		new_grade = Grade(quiz_record = quiz_record, grade = form.cleaned_data['grade'])
-		new_grade.save()
-	else:
-		# user not logged in
-		return HttpResponseRedirect(reverse('home', args=()))
+	quiz_record = QuizRecord.objects.get(user = user, quiz = quiz)
+	quiz_record.add_grade(grade)
 
-	quiz.modified_date = timezone.now()
-	quiz.save()
+	quiz.update_mod_date()
 
 	return HttpResponseRedirect(reverse('courses:practise', args=(course_id)))
 
@@ -429,7 +414,7 @@ def practice_question(request, course_id):
 	user = request.user
 	practice = course.get_practice_for_user(user)
 
-	print_terminal("Practice count is %d" % practice.count())
+	print_terminal(str(practice))
 
 	quiz = practice.pop_quiz()
 	print_terminal("Popped Quiz: %s" % str(quiz))
