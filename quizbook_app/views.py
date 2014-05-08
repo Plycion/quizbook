@@ -196,7 +196,7 @@ def edit_quiz_process(request, course_id, quiz_id):
 		return HttpResponse("Invalid Form.")
 
 	quiz = get_object_or_404(Quiz, pk=quiz_id)
-	now_user = get_user_or_none(request)
+	user = get_user_or_none(request)
 
 	quiz.question = form.cleaned_data['question']
 	quiz.answer = form.cleaned_data['answer']

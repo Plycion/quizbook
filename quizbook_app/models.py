@@ -105,6 +105,15 @@ class Quiz(models.Model):
 		self.modified_date = timezone.now()
 		self.save()
 
+	def get_creator(self):
+		return self.creator
+
+	def set_question(self, question):
+		self.question = question
+
+	def set_answer(self, answer):
+		self.answer = answer
+
 class QuizRecordManager(models.Manager):
 	def create_quiz_record(self, quiz, user):
 		"""
@@ -191,7 +200,7 @@ class Practice(models.Model):
 	def add_quiz_record(self, record):
 		previous = RecordToken.objects.filter(practice=self, quiz_record=record)
 		if previous:
-			raise TokenExistsException
+			raise models_exceptions.TokenExistsException
 
 		# weight = record.get_last_grade()
 		weight = 0
