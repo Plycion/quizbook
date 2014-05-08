@@ -29,6 +29,11 @@
   font-size: 12px;
 }
 
+.grade_button:hover {
+	color: black;
+	cursor: hand;
+}
+
 </style>
 {% endblock %}
 
@@ -41,28 +46,34 @@ Creator: {{ quiz.creator }} <br>
 Last Modified: {{ quiz.modified_date }} <br> -->
 {% if user_enrolled %}
 Last recorded grade: {{ last_grade.grade }}
-<csv id="traffic">
-  	date,username,grade
-	{% for grade in grade_list %}
-	"{{  grade.created_at }}", {{  user.username }}, {{ grade.grade }},
-	{% endfor %}
-</csv>
-<div id="graph">
 
-  <chart data="#traffic"
-         map-length="grade"
-         scale-y-linear="0 5">
-    <guide-y></guide-y>
-    <repeat>
-      <bar></bar>
-      <annotation class="bottom">
-<!--       	{% verbatim %}
-    		{{date}}
-		{% endverbatim %} -->
-      </annotation>
-    </repeat>
-  </chart>
+<div id="show_grade" class="white-link"><a href="">Show grade history</a></div>
+<div id="hide_grade"><a href="">Hide grade history</a></div>
 
+<div id="grade_history">
+	<csv id="traffic">
+	  	date,username,grade
+		{% for grade in grade_list %}
+		"{{  grade.created_at }}", {{  user.username }}, {{ grade.grade }},
+		{% endfor %}
+	</csv>
+	<div id="graph">
+
+	  <chart data="#traffic"
+	         map-length="grade"
+	         scale-y-linear="0 5">
+	    <guide-y></guide-y>
+	    <repeat>
+	      <bar></bar>
+	      <annotation class="bottom">
+	<!--       	{% verbatim %}
+	    		{{date}}
+			{% endverbatim %} -->
+	      </annotation>
+	    </repeat>
+	  </chart>
+
+	</div>
 </div>
 {% endif %}
 {% endblock %}
@@ -119,6 +130,7 @@ Last recorded grade: {{ last_grade.grade }}
 		});
 
 		$( document ).ready(function() {
+			setup_grade_history();
     		{% if answer %}
     		reveal_answer();
     		{% endif %}
@@ -135,6 +147,23 @@ Last recorded grade: {{ last_grade.grade }}
 				$('#delete_button').show();
 			});
 			
+		});
+
+		this.setup_grade_history = function() {
+			$( "#grade_history" ).hide();
+			$( "#hide_grade" ).hide();
+		}
+
+		$( "#show_grade" ).click(function() {
+			$( "#show_grade ").hide();
+			$( "#hide_grade ").show();
+			$( "#grade_history" ).show( "slow" );
+		});
+
+		$( "#hide_grade" ).click(function() {
+			$( "#show_grade ").show();
+			$( "#hide_grade ").hide();
+			$( "#grade_history" ).hide( "slow" );
 		});
 
 		
