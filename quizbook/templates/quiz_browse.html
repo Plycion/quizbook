@@ -79,9 +79,9 @@ Last recorded grade: {{ last_grade.grade }}
 {% endblock %}
 
 {% block menu %}
-<li><a href="{% url 'courses:edit_quiz' parent_course.id quiz.id %}">Edit</a></li>
 
 {% if user_is_creator %}
+<li><a href="{% url 'courses:edit_quiz' parent_course.id quiz.id %}">Edit</a></li>
 <li id="delete_button" id="delete_button" name="delete_button"><a href="#">Delete</a></li>
 <li id="really_delete_button" name="really_delete_button"><a href="{% url 'courses:delete_quiz' parent_course.id quiz.id %}">Confirm</a></li>
 {% endif %}
