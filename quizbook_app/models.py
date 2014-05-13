@@ -257,7 +257,9 @@ class RecordToken(models.Model):
 		self.save()
 
 class Quote(models.Model):
-	text = models.CharField(max_length=1000)
-	author = models.CharField(max_length=100)
+	text       = models.CharField(max_length=1000)
+	author     = models.CharField(max_length=100)
+	rating     = models.IntegerField(default=0, validators=[lambda x: 0 <= x and x <= 5])
+	created_at = models.DateTimeField(auto_now_add=True)
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
