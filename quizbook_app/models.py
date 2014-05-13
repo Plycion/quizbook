@@ -256,10 +256,32 @@ class RecordToken(models.Model):
 		self.weight = weight
 		self.save()
 
+
 class Quote(models.Model):
 	text       = models.CharField(max_length=1000)
 	author     = models.CharField(max_length=100)
 	rating     = models.IntegerField(default=0, validators=[lambda x: 0 <= x and x <= 5])
 	created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PreambleManager(models.Manager):
+	def get_preamble(self):
+		try:
+			preamble = self.get()
+		except:
+			preamble = Preamble(text="")
+			preamble.save()
+		
+		return preamble
+
+
+class Preamble(models.Model):
+	text       = models.CharField(max_length=10000)
+	updated_at = models.DateTimeField(auto_now=True, blank=True)
+
+	objects = PreambleManager()
+
+	def get_text(self):
+		return self.text
 
 User.profile = property(lambda u: UserProfile.objects.get_or_create(user=u)[0])
