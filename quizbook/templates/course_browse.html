@@ -11,7 +11,7 @@ Course: {{ course.name }}
 <li><a href="{% url 'courses:new_quiz_page' course.id %}">New</a></li>
 
 {% if user_enrolled %}
-<li><a href="{% url 'courses:practise' course.id %}">Practise</a></li>
+<li><a href="{% url 'courses:practise' course.id %}">Practice</a></li>
 <li><a href="{% url 'courses:drop' course.id %}">Drop</a></li>
 {% else %}
 <li><a href="{% url 'courses:enroll' course.id %}">Enroll</a></li>
