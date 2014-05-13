@@ -14,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 from quizbook_app.forms import AuthenticateForm, UserCreateForm
 from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
-from quizbook_app.models import Course, Quiz, QuizRecord, Grade, Practice, CoursePractice, Quote
+from quizbook_app.models import Course, Quiz, QuizRecord, Grade, Practice, CoursePractice, Quote, Preamble
 from quizbook_app.power import print_terminal
 
 def get_quote():
@@ -23,6 +23,9 @@ def get_quote():
 		return '''"%s" (%s)''' % (quote.text, quote.author)
 	except:
 		return ""
+
+def get_preamble_text():
+	return Preamble.objects.get_preamble().get_text()
 
 def get_user_or_none(request):
 	if request.user.is_authenticated():
@@ -76,7 +79,8 @@ def detail(request, course_id, message=None):
 		'error_message': message,
 		'user_enrolled': user_enrolled,
 		'user': user,
-		'user_is_creator': user_is_creator}
+		'user_is_creator': user_is_creator,
+		'preamble': get_preamble_text()}
 
 	return render(request, 'course_browse.html', context)
 
@@ -280,7 +284,8 @@ def quiz_page(request, course_id, quiz_id, answer=""):
 		'grade_list': grade_list,
 		'first_grade' : first_grade,
 		'last_grade' : last_grade,
-		'user_is_creator': user_is_creator}
+		'user_is_creator': user_is_creator,
+		'preamble': get_preamble_text()}
 
 	return render(request, 'quiz_browse.html', context)
 

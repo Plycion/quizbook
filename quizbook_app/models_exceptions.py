@@ -9,3 +9,7 @@ class PracticeIsEmptyException(Error):
 class TokenExistsException(Error):
    """Raised when a token alreay exists"""
    pass
+
+class PreambleDoesNotExistException(Error):
+   """Raised when a token alreay exists"""
+   pass
