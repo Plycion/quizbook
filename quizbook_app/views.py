@@ -158,7 +158,8 @@ def new_quiz_process(request, course_id):
 		return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
 	
 	elif '_preview' in request.POST:
-		context = {'question': question, 'answer': answer, 'course': course}
+		context = {'question': question, 'answer': answer, 'course': course,
+		'preamble': get_preamble_text()}
 		return render(request, 'quiz_preview.html', context)
 
 def update_quiz(request, course_id, quiz_id):
@@ -187,7 +188,7 @@ def update_quiz(request, course_id, quiz_id):
 def edit_quiz_page(request, course_id, quiz_id):
 	quiz = get_object_or_404(Quiz, pk=quiz_id)
 	user = get_user_or_none(request)
-	context = {'quiz': quiz, 'user': user}
+	context = {'quiz': quiz, 'user': user, 'preamble': get_preamble_text()}
 	return render(request, 'edit_quiz.html', context)
 
 def edit_quiz_process(request, course_id, quiz_id):
@@ -406,7 +407,7 @@ def practice_answer(request, quiz_id):
 	answer = request.POST['answer']
 	grade = QuizRecord.objects.get(quiz = quiz, user = user).get_last_grade()
 
-	context = {'quiz': quiz, 'grade': grade, 'answer': answer}
+	context = {'quiz': quiz, 'grade': grade, 'answer': answer, 'preamble': get_preamble_text()}
 	return render(request, 'practice_answer.html', context)
 
 @login_required
@@ -424,7 +425,7 @@ def practice_question(request, course_id):
 	quiz = practice.pop_quiz()
 	print_terminal("Popped Quiz: %s" % str(quiz))
 
-	context = {'quiz': quiz}
+	context = {'quiz': quiz, 'preamble': get_preamble_text()}
 	return render(request, 'practise_question.html', context)
 
 
