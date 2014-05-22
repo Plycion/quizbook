@@ -108,6 +108,15 @@ class Quiz(models.Model):
 	def get_creator(self):
 		return self.creator
 
+	def get_question(self):
+		return self.question
+
+	def get_answer(self):
+		return self.answer
+
+	def get_course(self):
+		return self.course
+
 	def set_question(self, question):
 		self.question = question
 
