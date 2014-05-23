@@ -147,20 +147,14 @@ def new_quiz_process(request, course_id):
 	answer   = form.cleaned_data['answer']
 	course = get_object_or_404(Course, pk=course_id)
 
-	if '_submit' in request.POST:
-		creator = None
-		user = get_user_or_none(request)
-		if user:
-			creator = user.username
+	creator = None
+	user = get_user_or_none(request)
+	if user:
+		creator = user.username
 
-		course.create_quiz(question=question, answer=answer,
-							creator=creator)
-		return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
-	
-	elif '_preview' in request.POST:
-		context = {'question': question, 'answer': answer, 'course': course,
-		'preamble': get_preamble_text()}
-		return render(request, 'quiz_preview.html', context)
+	course.create_quiz(question=question, answer=answer,
+						creator=creator)
+	return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
 
 def update_quiz(request, course_id, quiz_id):
 	user = get_user_or_none(request)
