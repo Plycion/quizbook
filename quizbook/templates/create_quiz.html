@@ -19,20 +19,22 @@ Create a new quiz for {{ course.name }}
 			{% csrf_token %}
 
 			<h3>Question</h3>
-			<textarea name="question" rows="4" cols="50" placeholder="">{{ question }}</textarea>
+			<textarea id="question" name="question" rows="4" cols="50" placeholder="">{{ question }}</textarea>
 
 			<h3>Answer</h3>
-			<textarea name="answer" rows="4" cols="50" placeholder="">{{ answer }}</textarea>
+			<textarea id="answer" name="answer" rows="4" cols="50" placeholder="">{{ answer }}</textarea>
 			</div>
 
 			</br>
 			<input class="css3it" type="submit" value="Submit" name="_submit"/>
-			<input class="css3it" type="submit" value="Preview" name="_preview"/>
+			<!-- <input class="css3it" type="submit" value="Preview" name="_preview"/> -->
 		</form>
+		<button id="preview_button" class="css3button">Preview</button>
+		<button id="close_preview_button" class="css3button">Return to editing</button>
+		<ul id="preview_ul"></ul>
 	</div>
 
 	<script>
-
 		this.reveal_answer = function() {
 			$("#reveal").hide();
 			$("#answer").fadeIn("slow");
@@ -42,17 +44,38 @@ Create a new quiz for {{ course.name }}
 			reveal_answer();
 		});
 
+		this.toggle_preview_buttons = function() {
+			$( "#preview_button" ).toggle();
+			$( "#close_preview_button" ).toggle();
+		}
+
+		$( "#preview_button" ).click(function() {
+			var question = "<li>" + $('textarea#question').val() + "</li>";
+			var answer = "<li>" + $('textarea#answer').val() + "</li>";
+			toggle_preview_buttons();
+			
+			$( "#random_quizes" ).slideUp("slow", function() {
+	    		$( "#preview_ul" ).html( question + answer );
+	    		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+	  		});
+		});
+
+		$( "#close_preview_button" ).click(function() {
+			$( "#preview_ul" ).text( "" );
+			toggle_preview_buttons();
+			$( "#random_quizes" ).slideDown("slow");
+		});
+
 		$( document ).ready(function() {
     		{% if answer %}
     		reveal_answer();
     		{% endif %}
+			$("#close_preview_button").hide();
 		});
 
 		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
 			$("#random_quizes").fadeIn("slow");
 		})
-
-		
 	</script>
 
 {% endblock %}
