@@ -2,71 +2,9 @@
 
 {% block morehead%}
 <link rel="stylesheet" href="{{ STATIC_PREFIX }}/static/quiz/css/quiz_template.css" type="text/css" />
-<script src="http://variancecharts.com/cdn/variance-noncommercial-standalone-02c9f8b.min.js"
-			charset="UTF-8"></script>
-<style media="screen" type="text/css">
-#graph {
-  width: 400px;
-  padding: 60px 80px 80px 41px;
-  color: #001729;
-  margin: -30px 0 -70px 0;
-}
-#graph h3 {
-  text-align: center;
-  margin: 0 0 28px 0;
-}
-#graph chart {
-  width: 400px;
-  height: 200px;
-}
-#graph bar {
-  margin: 0 8px;
-  border: none;
-  background-color: #001729;
-}
-#graph annotation {
-  text-transform: capitalize;
-  font-size: 12px;
-}
 
-.grade_button:hover {
-	color: black;
-	cursor: hand;
-}
+<link rel="stylesheet" href="{{ STATIC_URL }}css/quiz_browse.css">
 
-#answer {
-	border:2px solid;
-	border-radius:10px;
-	width: 80%;
-    margin: 0 auto;
-    padding: 10px;
-}
-
-#next {
-    width: 25px;   
-    left:0px;
-    height:25px;
-    position:absolute;
-    display: block;
-    background: url("http://i43.tinypic.com/25alqv7.png") 0px 0px ;
-   
-}
-
-#prev {
-    width: 25px;
-    height: 25px;
-	left:25px;
-    position:absolute;
-    display: block;
-    background: url("http://i43.tinypic.com/25alqv7.png") 25px 0px ;
-   
-    z-index: 10;
-    cursor: pointer;
-   
-    opacity: 0.8;
-}
-
-</style>
 {% endblock %}
 
 {% block title %}Course: {{ parent_course.name }}{% endblock %}
@@ -74,8 +12,6 @@
 {% block header%}
 Course: {{ parent_course.name }} <br>
 Creator: {{ quiz.creator }} <br>
-<!-- Date Created: {{ quiz.pub_date }} <br>
-Last Modified: {{ quiz.modified_date }} <br> -->
 {% if user_enrolled %}
 Last recorded grade: {{ last_grade.grade }}
 
@@ -139,14 +75,16 @@ Last recorded grade: {{ last_grade.grade }}
 
 				</div>
 				
-				<button id="prev" type="button" style="display: none;"></button>
-				<button id="next" data_index="1" data_max="{{ max }}" data_quiz_id="{{ quiz.id }}"  type="button" style="display: none;"></button>
-				
 				<li><a href="">Add an answer</a></li>
 			</ul>
 		</div>
 	</div>
 
+		<nav>
+			<span id="prev" class="cbp-fwprev">&lt;</span>
+			<span id="next" data_index="1" data_max="{{ max }}" data_quiz_id="{{ quiz.id }}" class="cbp-fwnext">&gt;</span>
+		</nav>
+	<script src="{{ STATIC_URL }}js/jquery.cbpFWSlider.min.js"></script>
 	<script>
 
 		function get_next() {
@@ -268,6 +206,7 @@ Last recorded grade: {{ last_grade.grade }}
 			{% if answer %}
 			reveal_answer();
 			{% endif %}
+			$( '#cbp-fwslider' ).cbpFWSlider();
 		});
 
 		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
