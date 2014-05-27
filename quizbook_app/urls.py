@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^new_course/$', views.new_course_page, name='new_course_page'),
     url(r'^new_course/process$', views.new_course_process, name='new_course_process'),
 
+
     url(r'^(?P<course_id>\d+)/$', views.detail, name='detail'),
     url(r'^(?P<course_id>\d+)/practice/$', views.practice_question, name='practise'),
     # url(r'^(?P<course_id>\d+)/random/$', views.random_quiz, name='random_quiz'),

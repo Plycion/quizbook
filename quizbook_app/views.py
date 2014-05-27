@@ -17,6 +17,21 @@ from django.core.urlresolvers import reverse
 from quizbook_app.models import Course, Quiz, QuizRecord, Grade, Practice, CoursePractice, Quote, Preamble
 from quizbook_app.power import print_terminal
 
+@login_required
+def get_solution(request):
+	context = RequestContext(request)
+	cat_id = None
+	if request.method == 'GET':
+		quiz_id = request.GET['quiz_id']
+		index = request.GET['index']
+
+	quiz = Quiz.objects.get(id=quiz_id)
+	index = int(index)
+
+	answer = quiz.get_solution_in_index(index).get_text()
+
+	return HttpResponse(answer)
+
 def get_quote():
 	try:
 		quote = Quote.objects.order_by('?')[0]
@@ -280,7 +295,8 @@ def quiz_page(request, course_id, quiz_id, answer=""):
 		'first_grade' : first_grade,
 		'last_grade' : last_grade,
 		'user_is_creator': user_is_creator,
-		'preamble': get_preamble_text()}
+		'preamble': get_preamble_text(),
+		'max': quiz.number_of_solutions()}
 
 	return render(request, 'quiz_browse.html', context)
 
@@ -352,14 +368,14 @@ def home(request, auth_form=None, user_form=None, message=None):
 		auth_form = auth_form or AuthenticateForm()
 		user_form = user_form or UserCreateForm()
 
- 		user = get_user_or_none(request)
- 		context = {
- 			'auth_form': auth_form,
- 			'user_form': user_form,
- 			'error_message': message,
- 			'user': user,
- 			'quote': get_quote(),
- 			'home': True}
+		user = get_user_or_none(request)
+		context = {
+			'auth_form': auth_form,
+			'user_form': user_form,
+			'error_message': message,
+			'user': user,
+			'quote': get_quote(),
+			'home': True}
 
 		return render(request, 'start_page.html', context)
 
