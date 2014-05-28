@@ -123,8 +123,8 @@ class Quiz(models.Model):
 	def set_answer(self, answer):
 		self.answer = answer
 
-	def add_solution(self, answer):
-		solution = Solution(quiz=self, text=answer)
+	def add_solution(self, answer, creator):
+		solution = Solution(quiz=self, text=answer, creator=creator)
 		solution.save()
 
 	def get_solutions(self):
@@ -181,6 +181,9 @@ class Solution(models.Model):
 	quiz = models.ForeignKey(Quiz)
 	text = models.TextField()
 	rank = models.IntegerField(default=0)
+	creator = models.ForeignKey(User, null=True)
+	created_at = models.DateTimeField(auto_now_add=True, null=True)
+	updated_at = models.DateTimeField(auto_now=True, null=True)
 
 	def get_quiz(self):
 		return self.quiz

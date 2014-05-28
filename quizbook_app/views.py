@@ -45,7 +45,7 @@ def process_add_solution(request, course_id, quiz_id):
 	quiz = Quiz.objects.get(id=quiz_id)
 	answer = request.POST['answer']
 
-	quiz.add_solution(answer)
+	quiz.add_solution(answer, request.user)
 	return HttpResponseRedirect(reverse('courses:quiz_page', args=(course_id, quiz_id)))
 
 def get_quote():
