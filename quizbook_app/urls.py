@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     url(r'^new_course/$', views.new_course_page, name='new_course_page'),
     url(r'^new_course/process$', views.new_course_process, name='new_course_process'),
 
+
     url(r'^(?P<course_id>\d+)/$', views.detail, name='detail'),
     url(r'^(?P<course_id>\d+)/practice/$', views.practice_question, name='practise'),
     # url(r'^(?P<course_id>\d+)/random/$', views.random_quiz, name='random_quiz'),
@@ -27,4 +28,6 @@ urlpatterns = patterns('',
     url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/update/$', views.update_quiz, name='update_quiz'),
     url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/edit/$', views.edit_quiz_page, name='edit_quiz'),
     url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/edit/process/$', views.edit_quiz_process, name='edit_quiz_process'),
+    url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/add_solution/$', views.add_solution, name='add_solution'),
+    url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/add_solution/process/$', views.process_add_solution, name='process_add_solution'),
 )

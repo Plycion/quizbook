@@ -123,6 +123,22 @@ class Quiz(models.Model):
 	def set_answer(self, answer):
 		self.answer = answer
 
+	def add_solution(self, answer):
+		solution = Solution(quiz=self, text=answer)
+		solution.save()
+
+	def get_solutions(self):
+		return Solution.objects.filter(quiz=self)
+
+	def number_of_solutions(self):
+		return len(self.get_solutions())
+
+	def get_top_solution(self):
+		return self.get_solution_in_index(0)
+
+	def get_solution_in_index(self, index):
+		return self.get_solutions().order_by('rank')[index]
+
 class QuizRecordManager(models.Manager):
 	def create_quiz_record(self, quiz, user):
 		"""
@@ -159,6 +175,43 @@ class QuizRecord(models.Model):
 	def update_tokens(self):
 		for token in RecordToken.objects.filter(quiz_record=self):
 			token.adjust_weight(self.get_last_grade())
+
+
+class Solution(models.Model):
+	quiz = models.ForeignKey(Quiz)
+	text = models.TextField()
+	rank = models.IntegerField(default=0)
+
+	def get_quiz(self):
+		return self.quiz
+
+	def get_text(self):
+		return self.text
+
+	def get_rank(self):
+		return self.rank
+
+	def set_text(self, text):
+		self.text = text
+		self.save()
+
+	def increment_rank(self):
+		self.set_rank(self.get_rank() + 1)
+
+	def set_rank(self, rank):
+		self.rank = rank
+		self.save()
+
+	def reset_rank(self):
+		self.set_rank(0)
+
+	def rank_is_zero(self):
+		return self.get_rank() == 0
+
+	def decrement_rank(self):
+		if not self.rank_is_zero():
+			self.set_rank(self.get_rank() - 1)
+
 
 class Grade(models.Model):
 	grade       = models.IntegerField(default=0, validators=[lambda x: 0 <= x and x <= 5])

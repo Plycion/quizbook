@@ -17,6 +17,37 @@ from django.core.urlresolvers import reverse
 from quizbook_app.models import Course, Quiz, QuizRecord, Grade, Practice, CoursePractice, Quote, Preamble
 from quizbook_app.power import print_terminal
 
+@login_required
+def get_solution(request):
+	context = RequestContext(request)
+	cat_id = None
+	if request.method == 'GET':
+		quiz_id = request.GET['quiz_id']
+		index = request.GET['index']
+
+	quiz = Quiz.objects.get(id=quiz_id)
+	index = int(index)
+
+	answer = quiz.get_solution_in_index(index).get_text()
+
+	return HttpResponse(answer)
+
+@login_required
+def add_solution(request, course_id, quiz_id):
+	quiz = Quiz.objects.get(id=quiz_id)
+	user = request.user
+
+	context = {'quiz': quiz, 'user': user, 'preamble': get_preamble_text()}
+	return render(request, 'create_solution.html', context)
+
+@login_required
+def process_add_solution(request, course_id, quiz_id):
+	quiz = Quiz.objects.get(id=quiz_id)
+	answer = request.POST['answer']
+
+	quiz.add_solution(answer)
+	return HttpResponseRedirect(reverse('courses:quiz_page', args=(course_id, quiz_id)))
+
 def get_quote():
 	try:
 		quote = Quote.objects.order_by('?')[0]
@@ -224,21 +255,6 @@ def delete_course(request, course_id):
 
 	return HttpResponseRedirect(reverse('courses:index', args=()))
 
-# def random_quiz(request, course_id):
-# 	print >>sys.stderr, ">>>> IN RANDOM QUIZ"
-# 	try:
-# 		course = Course.objects.get(pk=course_id)
-# 	except Course.DoesNotExist:
-# 		raise Http404
-
-# 	quizes = course.quiz_set.all()
-
-# 	try:
-# 		random_quiz = sorted(quizes, key=lambda x: random.random())[0]
-# 		return HttpResponseRedirect(reverse('courses:quiz_page', args=(random_quiz.course.id, random_quiz.id)))
-# 	except IndexError:
-# 		return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
-
 def quiz(request, course_id):
 	chosen = request.POST['quiz']
 	course = get_object_or_404(Course, pk=course_id)
@@ -280,7 +296,8 @@ def quiz_page(request, course_id, quiz_id, answer=""):
 		'first_grade' : first_grade,
 		'last_grade' : last_grade,
 		'user_is_creator': user_is_creator,
-		'preamble': get_preamble_text()}
+		'preamble': get_preamble_text(),
+		'max': quiz.number_of_solutions()}
 
 	return render(request, 'quiz_browse.html', context)
 
@@ -352,14 +369,14 @@ def home(request, auth_form=None, user_form=None, message=None):
 		auth_form = auth_form or AuthenticateForm()
 		user_form = user_form or UserCreateForm()
 
- 		user = get_user_or_none(request)
- 		context = {
- 			'auth_form': auth_form,
- 			'user_form': user_form,
- 			'error_message': message,
- 			'user': user,
- 			'quote': get_quote(),
- 			'home': True}
+		user = get_user_or_none(request)
+		context = {
+			'auth_form': auth_form,
+			'user_form': user_form,
+			'error_message': message,
+			'user': user,
+			'quote': get_quote(),
+			'home': True}
 
 		return render(request, 'start_page.html', context)
 

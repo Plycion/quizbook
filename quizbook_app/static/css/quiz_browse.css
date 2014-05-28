@@ -1,0 +1,66 @@
+#graph {
+  width: 400px;
+  padding: 60px 80px 80px 41px;
+  color: #001729;
+  margin: -30px 0 -70px 0;
+}
+#graph h3 {
+  text-align: center;
+  margin: 0 0 28px 0;
+}
+#graph chart {
+  width: 400px;
+  height: 200px;
+}
+#graph bar {
+  margin: 0 8px;
+  border: none;
+  background-color: #001729;
+}
+#graph annotation {
+  text-transform: capitalize;
+  font-size: 12px;
+}
+
+.grade_button:hover {
+	color: black;
+	cursor: hand;
+}
+
+#answer {
+	border:2px solid;
+	/*border-radius:10px;*/
+	width: 80%;
+    margin: 0 auto;
+    padding: 10px;
+}
+
+nav span {
+	position: absolute;
+	top: 50%;
+	width: 50px;
+	height: 100px;
+	background: black;
+	color: #fff;
+	font-size: 50px;
+	text-align: center;
+	margin-top: -50px;
+	line-height: 100px;
+	cursor: pointer;
+	font-weight: normal;
+}
+
+nav span:hover {
+	background: #009ADD;
+  color: white;
+}
+
+nav span.cbp-fwnext {
+	right: 0px;
+  display: none;
+}
+
+nav span.cbp-fwprev {
+	left: 0px;
+  display: none;
+}

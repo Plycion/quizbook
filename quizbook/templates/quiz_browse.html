@@ -2,39 +2,9 @@
 
 {% block morehead%}
 <link rel="stylesheet" href="{{ STATIC_PREFIX }}/static/quiz/css/quiz_template.css" type="text/css" />
-<script src="http://variancecharts.com/cdn/variance-noncommercial-standalone-02c9f8b.min.js"
-            charset="UTF-8"></script>
-<style media="screen" type="text/css">
-#graph {
-  width: 400px;
-  padding: 60px 80px 80px 41px;
-  color: #001729;
-  margin: -30px 0 -70px 0;
-}
-#graph h3 {
-  text-align: center;
-  margin: 0 0 28px 0;
-}
-#graph chart {
-  width: 400px;
-  height: 200px;
-}
-#graph bar {
-  margin: 0 8px;
-  border: none;
-  background-color: #001729;
-}
-#graph annotation {
-  text-transform: capitalize;
-  font-size: 12px;
-}
 
-.grade_button:hover {
-	color: black;
-	cursor: hand;
-}
+<link rel="stylesheet" href="{{ STATIC_URL }}css/quiz_browse.css">
 
-</style>
 {% endblock %}
 
 {% block title %}Course: {{ parent_course.name }}{% endblock %}
@@ -42,8 +12,6 @@
 {% block header%}
 Course: {{ parent_course.name }} <br>
 Creator: {{ quiz.creator }} <br>
-<!-- Date Created: {{ quiz.pub_date }} <br>
-Last Modified: {{ quiz.modified_date }} <br> -->
 {% if user_enrolled %}
 Last recorded grade: {{ last_grade.grade }}
 
@@ -52,7 +20,7 @@ Last recorded grade: {{ last_grade.grade }}
 
 <div id="grade_history">
 	<csv id="traffic">
-	  	date,username,grade
+		date,username,grade
 		{% for grade in grade_list %}
 		"{{  grade.created_at }}", {{  user.username }}, {{ grade.grade }},
 		{% endfor %}
@@ -60,17 +28,17 @@ Last recorded grade: {{ last_grade.grade }}
 	<div id="graph">
 
 	  <chart data="#traffic"
-	         map-length="grade"
-	         scale-y-linear="0 5">
-	    <guide-y></guide-y>
-	    <repeat>
-	      <bar></bar>
-	      <annotation class="bottom">
+			 map-length="grade"
+			 scale-y-linear="0 5">
+		<guide-y></guide-y>
+		<repeat>
+		  <bar></bar>
+		  <annotation class="bottom">
 	<!--       	{% verbatim %}
-	    		{{date}}
+				{{date}}
 			{% endverbatim %} -->
-	      </annotation>
-	    </repeat>
+		  </annotation>
+		</repeat>
 	  </chart>
 
 	</div>
@@ -91,49 +59,149 @@ Last recorded grade: {{ last_grade.grade }}
 
 {% block body %}
 
-<!--     <repeat>
-      <bar></bar>
-      <annotation class="bottom">
-      	{% verbatim %}
-        	{{date}}
-        {% endverbatim %}
-      </annotation>
-    </repeat> -->
-
-
-
-
-
 	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
-
 	<div id="random_quizes" style="display: none;">
 		<div id="quiz" style="">
 			<ul>
 				<li>{{ quiz.question }}</li>
-				<li>
-					<a id="reveal" href="#">Reveal Answer</a>
-					<div id="answer" style="display: none">{{ quiz.answer }}</div>
-				</li>
+				<div id="reveal">
+					<li>
+						<a href="#">Reveal answer</a>
+						
+					</li>
+				</div>
+				<div id="answer" style="display: none">
+					{{ quiz.answer }}
+
+				</div>
+				
+				<li><a href="{% url 'courses:add_solution' quiz.course.id quiz.id %}">Add an answer</a></li>
 			</ul>
 		</div>
 	</div>
 
+		<nav>
+			<span id="prev" class="cbp-fwprev">&lt;</span>
+			<span id="next" data_index="1" data_max="{{ max }}" data_quiz_id="{{ quiz.id }}" class="cbp-fwnext">&gt;</span>
+		</nav>
+	<script src="{{ STATIC_URL }}js/jquery.cbpFWSlider.min.js"></script>
 	<script>
+
+		$('#next').click(function(){
+			var quiz_id;
+			var index;
+			var max;
+			quiz_id = $(this).attr("data_quiz_id");
+			index = parseInt($(this).attr("data_index"), 10);
+			max = parseInt($(this).attr("data_max"), 10);
+			$.ajax({
+			    type: "GET",
+			    url:"/get_solution/",
+			    data: {
+			    'quiz_id': quiz_id,
+			    'index': index,
+			    },
+			    success: function(data) {
+			    	if ((index + 2) > max) {
+			    		$('#next').hide();
+			    	}
+			    	$('#next').attr("data_index", index + 1);
+			    	$('#prev').show()
+			    	show_answer(data);
+			    },
+			    error: function() {
+			        alert("Error");
+			    },
+			});
+		});
+
+		$('#prev').click(function() {
+			var quiz_id;
+			var index;
+			var max;
+
+			// Fetch data from #next button
+			quiz_id = $('#next').attr("data_quiz_id");
+			index = parseInt($('#next').attr("data_index"), 10);
+			max = parseInt($(this).attr("data_max"), 10);
+			$.ajax({
+			    type: "GET",
+			    url:"/get_solution/",
+			    data: {
+			    'quiz_id': quiz_id,
+			    'index': (index - 2),
+			    },
+			    success: function(data) {
+			    	if ((index - 3) < 0) {
+			    		$('#prev').hide();
+			    	}
+			    	$('#next').attr("data_index", index - 1);
+			    	$('#next').show()
+			    	show_answer(data);
+			    },
+			    error: function() {
+			        alert("Error");
+			    },
+			});
+		});
+
+		this.show_answer = function(answer) {
+			$("#reveal").hide();
+			$("#answer").hide();
+			$('#answer').html(answer);
+			MathJax.Hub.Queue(["Typeset",MathJax.Hub,"answer"], function() {
+				$("#answer").fadeIn("slow");
+			});
+		};
 
 		this.reveal_answer = function() {
 			$("#reveal").hide();
-			$("#answer").fadeIn("slow");
+
+			var quiz_id = $('#next').attr("data_quiz_id");
+			var index = parseInt($('#next').attr("data_index"), 10);
+			var max = parseInt($('#next').attr("data_max"), 10);
+
+			$.ajax({
+			    type: "GET",
+			    url:"/get_solution/",
+			    data: {
+			    'quiz_id': quiz_id,
+			    'index': 0,
+			    },
+			    success: function(data) {
+			    	if (index < max) {
+						$('#next').show();
+					}
+			    	show_answer(data);
+			    },
+			    error: function() {
+			        alert("Error");
+			    },
+			});
 		};
 
 		$("#reveal").click(function(){
 			reveal_answer();
 		});
 
+		// this.setup_solution_buttons = function() {
+		// 	var quiz_id = $('#next').attr("data_quiz_id");
+		// 	var index = parseInt($('#next').attr("data_index"), 10);
+		// 	var max = parseInt($('#next').attr("data_max"), 10);
+		// 	if (index < max) {
+		// 		$('#next').show();
+		// 	} else {
+		// 		$('#next').hide();
+		// 	}
+		// 	$('#prev').hide();
+		// }
+
 		$( document ).ready(function() {
 			setup_grade_history();
-    		{% if answer %}
-    		reveal_answer();
-    		{% endif %}
+			{% if answer %}
+			reveal_answer();
+			{% endif %}
+			$( '#cbp-fwslider' ).cbpFWSlider();
 		});
 
 		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
@@ -165,8 +233,6 @@ Last recorded grade: {{ last_grade.grade }}
 			$( "#hide_grade ").hide();
 			$( "#grade_history" ).hide( "slow" );
 		});
-
-		
 	</script>
 
 {% endblock %}
