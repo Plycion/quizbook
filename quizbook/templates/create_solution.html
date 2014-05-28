@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}New Solution{% endblock %}
+
+{% block header%}
+Create a Solution
+{% endblock %}
+
+{% block menu %}
+<li class="back"><a href="{% url 'courses:quiz_page' quiz.course.id quiz.id %}">Back</a></li>
+{% endblock %}
+
+{% block body %}
+
+	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+	<div id="random_quizes" style="display: none;">
+		<form action="{% url 'courses:process_add_solution' quiz.course.id quiz.id %}" method="post">
+			{% csrf_token %}
+			<div id="form_inside">
+				<ul>
+					<li id="question">{{ quiz.question }}</li>
+				</ul>
+
+				<textarea id="answer" name="answer" rows="4" cols="50" placeholder=""></textarea>
+
+				</br>
+			</div>
+			<input class="css3it" type="submit" value="Submit" />
+			<button id="preview_button" type="button" class="css3button">Preview</button>
+			<button id="close_preview_button" type="button" class="css3button">Return to editing</button>
+		</form>
+		
+		<ul id="preview_ul"></ul>
+	</div>
+
+	
+
+<script>
+	this.reveal_answer = function() {
+		$("#reveal").hide();
+		$("#answer").fadeIn("slow");
+	};
+
+	$("#reveal").click(function(){
+		reveal_answer();
+	});
+
+	this.toggle_preview_buttons = function() {
+		$( "#preview_button" ).toggle();
+		$( "#close_preview_button" ).toggle();
+	}
+
+	$( "#preview_button" ).click(function() {
+		var question = "<li>" + $('#question').html() + "</li>";
+		var answer = "<li>" + $('textarea#answer').val() + "</li>";
+		toggle_preview_buttons();
+		
+		$( "#form_inside" ).slideUp("slow", function() {
+    		$( "#preview_ul" ).html( question + answer );
+    		MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+  		});
+	});
+
+	$( "#close_preview_button" ).click(function() {
+		$( "#preview_ul" ).text( "" );
+		toggle_preview_buttons();
+		$( "#form_inside" ).slideDown("slow");
+	});
+
+	$( document ).ready(function() {
+		{% if answer %}
+		reveal_answer();
+		{% endif %}
+		$("#close_preview_button").hide();
+	});
+
+	MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
+		$("#random_quizes").fadeIn("slow");
+	})
+</script>
+{% endblock %}

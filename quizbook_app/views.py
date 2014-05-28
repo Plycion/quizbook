@@ -32,6 +32,22 @@ def get_solution(request):
 
 	return HttpResponse(answer)
 
+@login_required
+def add_solution(request, course_id, quiz_id):
+	quiz = Quiz.objects.get(id=quiz_id)
+	user = request.user
+
+	context = {'quiz': quiz, 'user': user, 'preamble': get_preamble_text()}
+	return render(request, 'create_solution.html', context)
+
+@login_required
+def process_add_solution(request, course_id, quiz_id):
+	quiz = Quiz.objects.get(id=quiz_id)
+	answer = request.POST['answer']
+
+	quiz.add_solution(answer)
+	return HttpResponseRedirect(reverse('courses:quiz_page', args=(course_id, quiz_id)))
+
 def get_quote():
 	try:
 		quote = Quote.objects.order_by('?')[0]
@@ -238,21 +254,6 @@ def delete_course(request, course_id):
 		raise Http404
 
 	return HttpResponseRedirect(reverse('courses:index', args=()))
-
-# def random_quiz(request, course_id):
-# 	print >>sys.stderr, ">>>> IN RANDOM QUIZ"
-# 	try:
-# 		course = Course.objects.get(pk=course_id)
-# 	except Course.DoesNotExist:
-# 		raise Http404
-
-# 	quizes = course.quiz_set.all()
-
-# 	try:
-# 		random_quiz = sorted(quizes, key=lambda x: random.random())[0]
-# 		return HttpResponseRedirect(reverse('courses:quiz_page', args=(random_quiz.course.id, random_quiz.id)))
-# 	except IndexError:
-# 		return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
 
 def quiz(request, course_id):
 	chosen = request.POST['quiz']

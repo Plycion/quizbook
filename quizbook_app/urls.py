@@ -28,4 +28,6 @@ urlpatterns = patterns('',
     url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/update/$', views.update_quiz, name='update_quiz'),
     url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/edit/$', views.edit_quiz_page, name='edit_quiz'),
     url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/edit/process/$', views.edit_quiz_process, name='edit_quiz_process'),
+    url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/add_solution/$', views.add_solution, name='add_solution'),
+    url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/add_solution/process/$', views.process_add_solution, name='process_add_solution'),
 )

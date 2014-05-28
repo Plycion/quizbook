@@ -75,7 +75,7 @@ Last recorded grade: {{ last_grade.grade }}
 
 				</div>
 				
-				<li><a href="">Add an answer</a></li>
+				<li><a href="{% url 'courses:add_solution' quiz.course.id quiz.id %}">Add an answer</a></li>
 			</ul>
 		</div>
 	</div>
@@ -86,11 +86,6 @@ Last recorded grade: {{ last_grade.grade }}
 		</nav>
 	<script src="{{ STATIC_URL }}js/jquery.cbpFWSlider.min.js"></script>
 	<script>
-
-		function get_next() {
-			Dajaxice.quizbook_app.hello_ajax(Dajax.process,{'a':{{ quiz.id }},'index':0})
-			// Dajaxice.quizbook_app.get_solution(Dajax.process,{'a':{{ quiz.id }},'index':0})
-		};
 
 		$('#next').click(function(){
 			var quiz_id;
