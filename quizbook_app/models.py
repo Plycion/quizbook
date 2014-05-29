@@ -106,7 +106,7 @@ class Quiz(models.Model):
 		self.save()
 
 	def get_creator(self):
-		return self.creator
+		return User.objects.get(username=self.creator)
 
 	def get_question(self):
 		return self.question
