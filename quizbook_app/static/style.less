@@ -113,7 +113,7 @@ a:active {text-decoration:none; color: #7CB2E2; background-color: black; color: 
 
 .white-link a:link {text-decoration:none; color: white; cursor: hand;}
 .white-link a:visited {text-decoration:none; color: white;}
-.white-link a:hover {text-decoration:none; color: #7CB2E2; background-color: white; color: black;}
+.white-link a:hover {text-decoration:none; color: #7CB2E2; background-color: white; color: black; cursor: pointer;}
 .white-link a:active {text-decoration:none; color: #7CB2E2; background-color: white; color: black;}
 
 body {
@@ -218,6 +218,7 @@ input[type="submit"] {
 }
 
 #content {
+    clear: both;
     padding-bottom: 50px;
 }
 
@@ -225,7 +226,16 @@ input[type="submit"] {
 	margin: 0px 0px 0px 0px;
 }
 
-#header {
+.buffer {
+    width: @main_width;
+    height: 20px;
+}
+
+#headers {
+}
+
+.header_box {
+    float: left;
     @header_pad: 20px;
 
     .clean_fonts;
@@ -235,9 +245,15 @@ input[type="submit"] {
     color: white;
 
     width: (@main_width/2) - 2*@header_pad;
-    margin-top: 20px;
     padding: @header_pad;
+    margin-bottom: 20px;
     line-height: 20px;
+    height: 100%;
+}
+
+.second_header {
+    display: none;
+    background-color: black;
 }
 
 #title {

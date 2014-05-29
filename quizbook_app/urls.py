@@ -30,4 +30,5 @@ urlpatterns = patterns('',
     url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/edit/process/$', views.edit_quiz_process, name='edit_quiz_process'),
     url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/add_solution/$', views.add_solution, name='add_solution'),
     url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/add_solution/process/$', views.process_add_solution, name='process_add_solution'),
+    url(r'^(?P<course_id>\d+)/(?P<quiz_id>\d+)/upvote/$', views.upvote_solution, name='upvote_solution'),
 )

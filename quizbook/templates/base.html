@@ -63,11 +63,19 @@
 		</div>
 	</div>
 	
-	
-
-	<div id="header">
-		{% block header %}{% endblock %}
+	<div class="buffer">
 	</div>
+
+	<div id="headers">
+		<div class="header_box" id="first_header">
+			{% block header %}{% endblock %}
+		</div>
+		
+		<div class="header_box second_header">
+			{% block second_header %}{% endblock %}
+		</div>
+	</div>
+	
 
 
 	<div id="content">
@@ -81,6 +89,9 @@
 
 	<script>
 	$(document).ready(function() {
+		var height = $('#first_header').css( "height" );
+		$('.second_header').css( "min-height", height );
+	});
 	</script>
 </body>
 </html>

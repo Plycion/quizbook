@@ -106,7 +106,7 @@ class Quiz(models.Model):
 		self.save()
 
 	def get_creator(self):
-		return self.creator
+		return User.objects.get(username=self.creator)
 
 	def get_question(self):
 		return self.question
@@ -123,8 +123,8 @@ class Quiz(models.Model):
 	def set_answer(self, answer):
 		self.answer = answer
 
-	def add_solution(self, answer):
-		solution = Solution(quiz=self, text=answer)
+	def add_solution(self, answer, creator):
+		solution = Solution(quiz=self, text=answer, creator=creator)
 		solution.save()
 
 	def get_solutions(self):
@@ -137,7 +137,7 @@ class Quiz(models.Model):
 		return self.get_solution_in_index(0)
 
 	def get_solution_in_index(self, index):
-		return self.get_solutions().order_by('rank')[index]
+		return self.get_solutions().order_by('-rank')[index]
 
 class QuizRecordManager(models.Manager):
 	def create_quiz_record(self, quiz, user):
@@ -181,6 +181,9 @@ class Solution(models.Model):
 	quiz = models.ForeignKey(Quiz)
 	text = models.TextField()
 	rank = models.IntegerField(default=0)
+	creator = models.ForeignKey(User, null=True)
+	created_at = models.DateTimeField(auto_now_add=True, null=True)
+	updated_at = models.DateTimeField(auto_now=True, null=True)
 
 	def get_quiz(self):
 		return self.quiz
@@ -190,6 +193,9 @@ class Solution(models.Model):
 
 	def get_rank(self):
 		return self.rank
+
+	def get_creator(self):
+		return self.creator
 
 	def set_text(self, text):
 		self.text = text
