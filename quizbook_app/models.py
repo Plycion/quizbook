@@ -50,13 +50,13 @@ class Course(models.Model):
 		for p in CoursePractice.objects.filter(course=self):
 			p.add_quiz(quiz)
 
-	def create_quiz(self, question, answer, creator=None):
-		quiz = Quiz(course=self, question=question,
-					answer=answer, pub_date=timezone.now())
-		if creator:
-			quiz.creator = creator
-
+	def create_quiz(self, question, answer, creator):
+		quiz = Quiz(course=self, question=question, creator=creator,
+					pub_date=timezone.now())
 		quiz.save()
+		quiz.add_solution(answer=answer, creator=creator)
+		
+
 		self.update_practices_with_quiz(quiz)
 
 
@@ -93,7 +93,6 @@ class Course(models.Model):
 class Quiz(models.Model):
 	course        = models.ForeignKey(Course)
 	question      = models.CharField(max_length=1000)
-	answer        = models.CharField(max_length=2000)
 	creator       = models.CharField(max_length=200, default='Anonymous')
 	pub_date      = models.DateTimeField('date published')
 	modified_date = models.DateTimeField('date modified', auto_now=True)
@@ -112,16 +111,13 @@ class Quiz(models.Model):
 		return self.question
 
 	def get_answer(self):
-		return self.answer
+		return self.get_top_solution().get_text
 
 	def get_course(self):
 		return self.course
 
 	def set_question(self, question):
 		self.question = question
-
-	def set_answer(self, answer):
-		self.answer = answer
 
 	def add_solution(self, answer, creator):
 		solution = Solution(quiz=self, text=answer, creator=creator)
