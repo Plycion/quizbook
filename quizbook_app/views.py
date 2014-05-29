@@ -185,6 +185,7 @@ def new_quiz_page(request, course_id):
 	context = {'course': course, 'user': user}
 	return render(request, 'create_quiz.html', context)
 
+@login_required
 def new_quiz_process(request, course_id):
 	if request.method != 'POST':
 		return HttpResponse("No Form.")
@@ -197,13 +198,9 @@ def new_quiz_process(request, course_id):
 	answer   = form.cleaned_data['answer']
 	course = get_object_or_404(Course, pk=course_id)
 
-	creator = None
-	user = get_user_or_none(request)
-	if user:
-		creator = user.username
-
 	course.create_quiz(question=question, answer=answer,
-						creator=creator)
+						creator=request.user)
+
 	return HttpResponseRedirect(reverse('courses:detail', args=(course_id)))
 
 def update_quiz(request, course_id, quiz_id):
