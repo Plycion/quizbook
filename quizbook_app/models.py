@@ -181,9 +181,9 @@ class Solution(models.Model):
 	quiz = models.ForeignKey(Quiz)
 	text = models.TextField()
 	rank = models.IntegerField(default=0)
-	creator = models.ForeignKey(User, null=True)
-	created_at = models.DateTimeField(auto_now_add=True, null=True)
-	updated_at = models.DateTimeField(auto_now=True, null=True)
+	creator = models.ForeignKey(User)
+	created_at = models.DateTimeField(auto_now_add=True)
+	updated_at = models.DateTimeField(auto_now=True)
 
 	def get_quiz(self):
 		return self.quiz
