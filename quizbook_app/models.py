@@ -137,7 +137,7 @@ class Quiz(models.Model):
 		return self.get_solution_in_index(0)
 
 	def get_solution_in_index(self, index):
-		return self.get_solutions().order_by('rank')[index]
+		return self.get_solutions().order_by('-rank')[index]
 
 class QuizRecordManager(models.Manager):
 	def create_quiz_record(self, quiz, user):
@@ -193,6 +193,9 @@ class Solution(models.Model):
 
 	def get_rank(self):
 		return self.rank
+
+	def get_creator(self):
+		return self.creator
 
 	def set_text(self, text):
 		self.text = text

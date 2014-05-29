@@ -16,8 +16,8 @@ from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.core.urlresolvers import reverse
 from quizbook_app.models import Course, Quiz, QuizRecord, Grade, Practice, CoursePractice, Quote, Preamble
 from quizbook_app.power import print_terminal
+import json
 
-@login_required
 def get_solution(request):
 	context = RequestContext(request)
 	cat_id = None
@@ -28,9 +28,13 @@ def get_solution(request):
 	quiz = Quiz.objects.get(id=quiz_id)
 	index = int(index)
 
-	answer = quiz.get_solution_in_index(index).get_text()
+	solution = quiz.get_solution_in_index(index)
+	answer = solution.get_text()
 
-	return HttpResponse(answer)
+	data = {'answer':answer, 'creator': solution.get_creator().username,
+			'rank': solution.get_rank()}
+
+	return HttpResponse(json.dumps(data), content_type = "application/json")
 
 @login_required
 def add_solution(request, course_id, quiz_id):
@@ -39,6 +43,21 @@ def add_solution(request, course_id, quiz_id):
 
 	context = {'quiz': quiz, 'user': user, 'preamble': get_preamble_text()}
 	return render(request, 'create_solution.html', context)
+
+@login_required
+def upvote_solution(request, course_id, quiz_id):
+	if request.method == 'GET':
+		quiz_id = request.GET['quiz_id']
+		solution_index = int(request.GET['index'])
+
+	quiz = Quiz.objects.get(id=quiz_id)
+
+	solution = quiz.get_solution_in_index(solution_index)
+	solution.increment_rank()
+
+	data = {'new_rank': solution.get_rank()}
+	return HttpResponse(json.dumps(data), content_type = "application/json")
+
 
 @login_required
 def process_add_solution(request, course_id, quiz_id):

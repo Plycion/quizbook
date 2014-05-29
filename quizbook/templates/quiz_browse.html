@@ -46,6 +46,9 @@ Last recorded grade: {{ last_grade.grade }}
 {% endif %}
 {% endblock %}
 
+{% block second_header %}
+{% endblock %}
+
 {% block menu %}
 
 {% if user_is_creator %}
@@ -72,7 +75,6 @@ Last recorded grade: {{ last_grade.grade }}
 				</div>
 				<div id="answer" style="display: none">
 					{{ quiz.answer }}
-
 				</div>
 				
 				<li><a href="{% url 'courses:add_solution' quiz.course.id quiz.id %}">Add an answer</a></li>
@@ -145,12 +147,19 @@ Last recorded grade: {{ last_grade.grade }}
 			});
 		});
 
-		this.show_answer = function(answer) {
+		this.show_answer = function(data) {
 			$("#reveal").hide();
 			$("#answer").hide();
-			$('#answer').html(answer);
+			$('#answer').html(data.answer);
+			$('.second_header').show();
 			MathJax.Hub.Queue(["Typeset",MathJax.Hub,"answer"], function() {
 				$("#answer").fadeIn("slow");
+				var text;
+				var answer = data.answer;
+				var creator = data.creator;
+				$(".second_header").html("Creator: " + creator + "<br><span id=rank>Rank: " + data.rank + "</span>");
+				$(".second_header").append("{% if user_enrolled %}<br><div id='upvote_button' class='white-link' onclick='upvote();'><a herf=''>Upvote</a></div>{% endif %}");
+
 			});
 		};
 
@@ -180,6 +189,26 @@ Last recorded grade: {{ last_grade.grade }}
 			});
 		};
 
+		this.upvote = function() {
+			var quiz_id = $('#next').attr("data_quiz_id");
+			var index = parseInt($('#next').attr("data_index"), 10);
+			var url_var = "{% url 'courses:upvote_solution' quiz.course.id quiz.id %}";
+			$.ajax({
+			    type: "get",
+			    url: url_var,
+			    data: {
+			    	'quiz_id': quiz_id,
+			    	'index': (index - 1)
+			    },
+			    success: function(data) {
+					$('#rank').html("Rank: " + data.new_rank);
+			    },
+			    error: function() {
+			        alert("Error");
+			    },
+			});
+		}
+
 		$("#reveal").click(function(){
 			reveal_answer();
 		});
@@ -201,7 +230,7 @@ Last recorded grade: {{ last_grade.grade }}
 			{% if answer %}
 			reveal_answer();
 			{% endif %}
-			$( '#cbp-fwslider' ).cbpFWSlider();
+			// $('.second_header').hide();
 		});
 
 		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
