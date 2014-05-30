@@ -1,60 +1,56 @@
 {% extends "base.html" %}
 
 {% block morehead%}
-<link rel="stylesheet" href="{{ STATIC_PREFIX }}/static/quiz/css/quiz_template.css" type="text/css" />
-
 <link rel="stylesheet" href="{{ STATIC_URL }}css/quiz_browse.css">
-
 {% endblock %}
 
 {% block title %}Course: {{ parent_course.name }}{% endblock %}
 
 {% block header%}
-Course: {{ parent_course.name }} <br>
-Creator: {{ quiz.creator }} <br>
-{% if user_enrolled %}
-Last recorded grade: {{ last_grade.grade }}
-
-<div id="show_grade" class="white-link"><a href="">Show grade history</a></div>
-<div id="hide_grade"><a href="">Hide grade history</a></div>
-
-<div id="grade_history">
-	<csv id="traffic">
-		date,username,grade
-		{% for grade in grade_list %}
-		"{{  grade.created_at }}", {{  user.username }}, {{ grade.grade }},
-		{% endfor %}
-	</csv>
-	<div id="graph">
-
-	  <chart data="#traffic"
-			 map-length="grade"
-			 scale-y-linear="0 5">
-		<guide-y></guide-y>
-		<repeat>
-		  <bar></bar>
-		  <annotation class="bottom">
-	<!--       	{% verbatim %}
-				{{date}}
-			{% endverbatim %} -->
-		  </annotation>
-		</repeat>
-	  </chart>
-
-	</div>
-</div>
-{% endif %}
+	Course: {{ parent_course.name }} <br>
+	Creator: {{ quiz.creator }} <br>
+	{% if user_enrolled %}
+		Last recorded grade: {{ last_grade.grade }}
+		<div id="show_grade" class="white-link"><a href="">Show grade history</a></div>
+		<div id="hide_grade"><a href="">Hide grade history</a></div>
+		<div id="grade_history">
+			<csv id="traffic">
+				date,username,grade
+				{% for grade in grade_list %}
+				"{{  grade.created_at }}", {{  user.username }}, {{ grade.grade }},
+				{% endfor %}
+			</csv>
+			<div id="graph">
+			  <chart data="#traffic"
+					 map-length="grade"
+					 scale-y-linear="0 5">
+				<guide-y></guide-y>
+				<repeat>
+				  <bar></bar>
+				  <annotation class="bottom">
+				  </annotation>
+				</repeat>
+			  </chart>
+			</div>
+		</div>
+	{% endif %}
 {% endblock %}
 
 {% block second_header %}
+	Creator: <span id='creator_span'></span> </br>
+	Rank: <span id='rank_span'></span> </br>
+	<div id='upvote_button' class='white-link' onclick='upvote();'>
+		<a herf=''>Upvote</a>
+	</div>
+	<div id="delete_solution_button" class='white-link' onclick="delete_solution();"></div>
 {% endblock %}
 
 {% block menu %}
 
 {% if user_is_creator %}
-<li><a href="{% url 'courses:edit_quiz' parent_course.id quiz.id %}">Edit</a></li>
-<li id="delete_button" id="delete_button" name="delete_button"><a href="#">Delete</a></li>
-<li id="really_delete_button" name="really_delete_button"><a href="{% url 'courses:delete_quiz' parent_course.id quiz.id %}">Confirm</a></li>
+	<li><a href="{% url 'courses:edit_quiz' parent_course.id quiz.id %}">Edit</a></li>
+	<li id="delete_button" id="delete_button" name="delete_button"><a href="#">Delete</a></li>
+	<li id="really_delete_button" name="really_delete_button"><a href="{% url 'courses:delete_quiz' parent_course.id quiz.id %}">Confirm</a></li>
 {% endif %}
 
 <li class="back"><a href="{% url 'courses:detail' quiz.course.id %}">Back to {{ quiz.course.name }}</a></li>
@@ -67,10 +63,9 @@ Last recorded grade: {{ last_grade.grade }}
 		<div id="quiz" style="">
 			<ul>
 				<li>{{ quiz.question }}</li>
-				<div id="reveal">
+				<div id="reveal" style="display: none">
 					<li>
 						<a href="#">Reveal answer</a>
-						
 					</li>
 				</div>
 				<div id="answer" style="display: none">
@@ -86,9 +81,8 @@ Last recorded grade: {{ last_grade.grade }}
 			<span id="prev" class="cbp-fwprev">&lt;</span>
 			<span id="next" data_index="1" data_max="{{ max }}" data_quiz_id="{{ quiz.id }}" class="cbp-fwnext">&gt;</span>
 		</nav>
-	<script src="{{ STATIC_URL }}js/jquery.cbpFWSlider.min.js"></script>
-	<script>
 
+	<script>
 		$('#next').click(function(){
 			var quiz_id;
 			var index;
@@ -148,18 +142,23 @@ Last recorded grade: {{ last_grade.grade }}
 		});
 
 		this.show_answer = function(data) {
+			var answer = data.answer;
+			var creator = data.creator;
+			var rank = data.rank;
+
 			$("#reveal").hide();
 			$("#answer").hide();
-			$('#answer').html(data.answer);
+			$('#answer').html(answer);
 			$('.second_header').show();
 			MathJax.Hub.Queue(["Typeset",MathJax.Hub,"answer"], function() {
+				$('#creator_span').html(creator);
+				$('#rank_span').html(rank);
+				if (data.user_is_creator) {
+					$('#delete_solution_button').html('<a href="#">Delete solution</a>');
+				} else {
+					$('#delete_solution_button').html('');
+				}
 				$("#answer").fadeIn("slow");
-				var text;
-				var answer = data.answer;
-				var creator = data.creator;
-				$(".second_header").html("Creator: " + creator + "<br><span id=rank>Rank: " + data.rank + "</span>");
-				$(".second_header").append("{% if user_enrolled %}<br><div id='upvote_button' class='white-link' onclick='upvote();'><a herf=''>Upvote</a></div>{% endif %}");
-
 			});
 		};
 
@@ -201,10 +200,30 @@ Last recorded grade: {{ last_grade.grade }}
 			    	'index': (index - 1)
 			    },
 			    success: function(data) {
-					$('#rank').html("Rank: " + data.new_rank);
+					$('#rank_span').html(data.new_rank);
 			    },
 			    error: function() {
 			        alert("Error");
+			    },
+			});
+		}
+
+		this.delete_solution = function() {
+			var quiz_id = $('#next').attr("data_quiz_id");
+			var index = parseInt($('#next').attr("data_index"), 10);
+			var url_var = "{% url 'courses:delete_solution' quiz.course.id quiz.id %}";
+			$.ajax({
+				type: "get",
+				url: url_var,
+				data: {
+					'quiz_id': quiz_id,
+					'index': (index - 1)
+				},
+				success: function(data) {
+					location.reload(); // refresh page
+			    },
+			    error: function() {
+			        alert("Could not delete solution");
 			    },
 			});
 		}
@@ -213,24 +232,16 @@ Last recorded grade: {{ last_grade.grade }}
 			reveal_answer();
 		});
 
-		// this.setup_solution_buttons = function() {
-		// 	var quiz_id = $('#next').attr("data_quiz_id");
-		// 	var index = parseInt($('#next').attr("data_index"), 10);
-		// 	var max = parseInt($('#next').attr("data_max"), 10);
-		// 	if (index < max) {
-		// 		$('#next').show();
-		// 	} else {
-		// 		$('#next').hide();
-		// 	}
-		// 	$('#prev').hide();
-		// }
+		this.setup_reveal_button = function() {
+			var max = parseInt($('#next').attr("data_max"), 10);
+			if (max > 0) {
+				$("#reveal").show();
+			}
+		}
 
 		$( document ).ready(function() {
 			setup_grade_history();
-			{% if answer %}
-			reveal_answer();
-			{% endif %}
-			// $('.second_header').hide();
+			setup_reveal_button();
 		});
 
 		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {

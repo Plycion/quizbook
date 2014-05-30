@@ -19,8 +19,6 @@ from quizbook_app.power import print_terminal
 import json
 
 def get_solution(request):
-	context = RequestContext(request)
-	cat_id = None
 	if request.method == 'GET':
 		quiz_id = request.GET['quiz_id']
 		index = request.GET['index']
@@ -30,9 +28,11 @@ def get_solution(request):
 
 	solution = quiz.get_solution_in_index(index)
 	answer = solution.get_text()
+	creator = solution.get_creator().username
+	user_is_creator = (solution.get_creator() == get_user_or_none(request))
 
 	data = {'answer':answer, 'creator': solution.get_creator().username,
-			'rank': solution.get_rank()}
+			'rank': solution.get_rank(), 'user_is_creator': user_is_creator}
 
 	return HttpResponse(json.dumps(data), content_type = "application/json")
 
@@ -57,6 +57,24 @@ def upvote_solution(request, course_id, quiz_id):
 
 	data = {'new_rank': solution.get_rank()}
 	return HttpResponse(json.dumps(data), content_type = "application/json")
+
+@login_required
+def delete_solution(request, course_id, quiz_id):
+	print_terminal("Entered Delete phase")
+	if request.method == 'GET':
+		quiz_id = request.GET['quiz_id']
+		solution_index = int(request.GET['index'])
+
+	quiz = Quiz.objects.get(id=quiz_id)
+	solution = quiz.get_solution_in_index(solution_index)
+	print_terminal("Fetched solution")
+
+	success = False
+	if solution.get_creator() == request.user:
+		solution.delete()
+		success = True
+
+	return HttpResponse(json.dumps({'success': str(success)}), content_type = "application/json")
 
 
 @login_required
@@ -91,12 +109,9 @@ def get_username_or_anon(user):
 
 def get_or_create_quiz_record(user, quiz):
 	try:
-		print_terminal(">>>>> fetched quiz record for user %s" % (user.username))
 		quiz_record = QuizRecord.objects.get(user = user, quiz = quiz)
 	except QuizRecord.DoesNotExist:
-		print >>sys.stderr, ">>>>> created new quiz record for user %s" % (user.username)
 		quiz_record = QuizRecord.objects.create_quiz_record(user = user, quiz = quiz)
-
 
 	return quiz_record
 
