@@ -63,10 +63,9 @@
 		<div id="quiz" style="">
 			<ul>
 				<li>{{ quiz.question }}</li>
-				<div id="reveal">
+				<div id="reveal" style="display: none">
 					<li>
 						<a href="#">Reveal answer</a>
-						
 					</li>
 				</div>
 				<div id="answer" style="display: none">
@@ -233,12 +232,16 @@
 			reveal_answer();
 		});
 
+		this.setup_reveal_button = function() {
+			var max = parseInt($('#next').attr("data_max"), 10);
+			if (max > 0) {
+				$("#reveal").show();
+			}
+		}
+
 		$( document ).ready(function() {
 			setup_grade_history();
-			{% if answer %}
-			reveal_answer();
-			{% endif %}
-			// $('.second_header').hide();
+			setup_reveal_button();
 		});
 
 		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
