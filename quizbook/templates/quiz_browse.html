@@ -39,10 +39,10 @@
 {% block second_header %}
 	Creator: <span id='creator_span'></span> </br>
 	Rank: <span id='rank_span'></span> </br>
-	<div id='upvote_button' class='white-link' onclick='upvote();'>
+	<div id='upvote_button' class='white-link' onclick='upvote();' data_url="{% url 'courses:upvote_solution' quiz.course.id quiz.id %}">
 		<a herf=''>Upvote</a>
 	</div>
-	<div id="delete_solution_button" class='white-link' onclick="delete_solution();"></div>
+	<div id="delete_solution_button" class='white-link' onclick="delete_solution();" data_url="{% url 'courses:delete_solution' quiz.course.id quiz.id %}"></div>
 {% endblock %}
 
 {% block menu %}
@@ -57,8 +57,8 @@
 {% endblock %}
 
 {% block body %}
-
 	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
 	<div id="random_quizes" style="display: none;">
 		<div id="quiz" style="">
 			<ul>
@@ -71,208 +71,15 @@
 				<div id="answer" style="display: none">
 					{{ quiz.answer }}
 				</div>
-				
 				<li><a href="{% url 'courses:add_solution' quiz.course.id quiz.id %}">Add an answer</a></li>
 			</ul>
 		</div>
 	</div>
 
-		<nav>
-			<span id="prev" class="cbp-fwprev">&lt;</span>
-			<span id="next" data_index="1" data_max="{{ max }}" data_quiz_id="{{ quiz.id }}" class="cbp-fwnext">&gt;</span>
-		</nav>
+	<nav>
+		<span id="prev" class="cbp-fwprev">&lt;</span>
+		<span id="next" data_index="1" data_max="{{ max }}" data_quiz_id="{{ quiz.id }}" class="cbp-fwnext">&gt;</span>
+	</nav>
 
-	<script>
-		$('#next').click(function(){
-			var quiz_id;
-			var index;
-			var max;
-			quiz_id = $(this).attr("data_quiz_id");
-			index = parseInt($(this).attr("data_index"), 10);
-			max = parseInt($(this).attr("data_max"), 10);
-			$.ajax({
-			    type: "GET",
-			    url:"/get_solution/",
-			    data: {
-			    'quiz_id': quiz_id,
-			    'index': index,
-			    },
-			    success: function(data) {
-			    	if ((index + 2) > max) {
-			    		$('#next').hide();
-			    	}
-			    	$('#next').attr("data_index", index + 1);
-			    	$('#prev').show()
-			    	show_answer(data);
-			    },
-			    error: function() {
-			        alert("Error");
-			    },
-			});
-		});
-
-		$('#prev').click(function() {
-			var quiz_id;
-			var index;
-			var max;
-
-			// Fetch data from #next button
-			quiz_id = $('#next').attr("data_quiz_id");
-			index = parseInt($('#next').attr("data_index"), 10);
-			max = parseInt($(this).attr("data_max"), 10);
-			$.ajax({
-			    type: "GET",
-			    url:"/get_solution/",
-			    data: {
-			    'quiz_id': quiz_id,
-			    'index': (index - 2),
-			    },
-			    success: function(data) {
-			    	if ((index - 3) < 0) {
-			    		$('#prev').hide();
-			    	}
-			    	$('#next').attr("data_index", index - 1);
-			    	$('#next').show()
-			    	show_answer(data);
-			    },
-			    error: function() {
-			        alert("Error");
-			    },
-			});
-		});
-
-		this.show_answer = function(data) {
-			var answer = data.answer;
-			var creator = data.creator;
-			var rank = data.rank;
-
-			$("#reveal").hide();
-			$("#answer").hide();
-			$('#answer').html(answer);
-			$('.second_header').show();
-			MathJax.Hub.Queue(["Typeset",MathJax.Hub,"answer"], function() {
-				$('#creator_span').html(creator);
-				$('#rank_span').html(rank);
-				if (data.user_is_creator) {
-					$('#delete_solution_button').html('<a href="#">Delete solution</a>');
-				} else {
-					$('#delete_solution_button').html('');
-				}
-				$("#answer").fadeIn("slow");
-			});
-		};
-
-		this.reveal_answer = function() {
-			$("#reveal").hide();
-
-			var quiz_id = $('#next').attr("data_quiz_id");
-			var index = parseInt($('#next').attr("data_index"), 10);
-			var max = parseInt($('#next').attr("data_max"), 10);
-
-			$.ajax({
-			    type: "GET",
-			    url:"/get_solution/",
-			    data: {
-			    'quiz_id': quiz_id,
-			    'index': 0,
-			    },
-			    success: function(data) {
-			    	if (index < max) {
-						$('#next').show();
-					}
-			    	show_answer(data);
-			    },
-			    error: function() {
-			        alert("Error");
-			    },
-			});
-		};
-
-		this.upvote = function() {
-			var quiz_id = $('#next').attr("data_quiz_id");
-			var index = parseInt($('#next').attr("data_index"), 10);
-			var url_var = "{% url 'courses:upvote_solution' quiz.course.id quiz.id %}";
-			$.ajax({
-			    type: "get",
-			    url: url_var,
-			    data: {
-			    	'quiz_id': quiz_id,
-			    	'index': (index - 1)
-			    },
-			    success: function(data) {
-					$('#rank_span').html(data.new_rank);
-			    },
-			    error: function() {
-			        alert("Error");
-			    },
-			});
-		}
-
-		this.delete_solution = function() {
-			var quiz_id = $('#next').attr("data_quiz_id");
-			var index = parseInt($('#next').attr("data_index"), 10);
-			var url_var = "{% url 'courses:delete_solution' quiz.course.id quiz.id %}";
-			$.ajax({
-				type: "get",
-				url: url_var,
-				data: {
-					'quiz_id': quiz_id,
-					'index': (index - 1)
-				},
-				success: function(data) {
-					location.reload(); // refresh page
-			    },
-			    error: function() {
-			        alert("Could not delete solution");
-			    },
-			});
-		}
-
-		$("#reveal").click(function(){
-			reveal_answer();
-		});
-
-		this.setup_reveal_button = function() {
-			var max = parseInt($('#next').attr("data_max"), 10);
-			if (max > 0) {
-				$("#reveal").show();
-			}
-		}
-
-		$( document ).ready(function() {
-			setup_grade_history();
-			setup_reveal_button();
-		});
-
-		MathJax.Hub.Register.StartupHook("End Typeset", function (message) {
-			$("#random_quizes").fadeIn("slow");
-		})
-
-		$("#delete_button").click(function(){
-			$('#delete_button').hide();
-			$('#really_delete_button').fadeIn();
-			$('#really_delete_button').delay(3000).fadeOut(0, function() {
-				$('#delete_button').show();
-			});
-			
-		});
-
-		this.setup_grade_history = function() {
-			$( "#grade_history" ).hide();
-			$( "#hide_grade" ).hide();
-		}
-
-		$( "#show_grade" ).click(function() {
-			$( "#show_grade ").hide();
-			$( "#hide_grade ").show();
-			$( "#grade_history" ).show( "slow" );
-		});
-
-		$( "#hide_grade" ).click(function() {
-			$( "#show_grade ").show();
-			$( "#hide_grade ").hide();
-			$( "#grade_history" ).hide( "slow" );
-		});
-	</script>
-
+	<script src="{{ STATIC_URL }}js/quiz_browse.js"></script>
 {% endblock %}
