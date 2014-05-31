@@ -30,7 +30,6 @@
 <script src="{{ STATIC_URL }}less.js"></script>
 
 {% block morehead %}{% endblock %}
- 
 </head>
 
 <div id="preamble" style="display: none">
@@ -38,60 +37,56 @@
 </div>
  
 <body id="index" class="home">
-
 	<div id="main">
-	
-	<div id="logo">
-		<span><a href="/" style="color: white">Quiz Book</a></span>
-		<span style="font-size: 14px;">{{ quote }}</span>
-		<div id='cssmenu'>
-		<ul>
-		{% if user %}
-			<li><a href="{% url 'home' %}" class="icon-logo">Home</a></li>
-		{% else %}
-			<li><a href="{% url 'home' %}" class="icon-logo">Anonymous</a></li>
-		{% endif %}
-		{% block menu %}{% endblock %}
-		{% if user %}
-			<li class="back"><a href="{% url 'logout' %}">Logout</a></li>
-		{% else %}
-			{% if not home %}
-			<li class="back"><a href="{% url 'home' %}">Sign In</a></li>
-			{% endif %}
-		{% endif %}
-		</ul>
+		<div id="logo">
+			<span><a href="/" style="color: white">Quiz Book</a></span>
+			<span style="font-size: 14px;">{{ quote }}</span>
+			<div id='cssmenu'>
+				<ul>
+				{% if user %}
+					<li><a href="{% url 'home' %}" class="icon-logo">Home</a></li>
+				{% else %}
+					<li><a href="{% url 'home' %}" class="icon-logo">Anonymous</a></li>
+				{% endif %}
+				{% block menu %}{% endblock %}
+				{% if user %}
+					<li class="back"><a href="{% url 'logout' %}">Logout</a></li>
+				{% else %}
+					{% if not home %}
+					<li class="back"><a href="{% url 'home' %}">Sign In</a></li>
+					{% endif %}
+				{% endif %}
+				</ul>
+			</div>
+		</div>
+
+		<div class="buffer">
+		</div>
+
+		<div id="headers">
+			<div class="header_box" id="first_header">
+				{% block header %}{% endblock %}
+			</div>
+			
+			<div class="header_box second_header">
+				{% block second_header %}{% endblock %}
+			</div>
+		</div>
+
+		<div id="content">
+			{% block body %}{% endblock %}
 		</div>
 	</div>
-	
-	<div class="buffer">
-	</div>
 
-	<div id="headers">
-		<div class="header_box" id="first_header">
-			{% block header %}{% endblock %}
-		</div>
-		
-		<div class="header_box second_header">
-			{% block second_header %}{% endblock %}
-		</div>
-	</div>
-	
-
-
-	<div id="content">
-		{% block body %}{% endblock %}
-	</div>
-	
-	</div>
 	<footer>
 		Quiz Book - Minimalist Study Tool
 	</footer>
 
 	<script>
-	$(document).ready(function() {
-		var height = $('#first_header').css( "height" );
-		$('.second_header').css( "min-height", height );
-	});
+		$(document).ready(function() {
+			var height = $('#first_header').css( "height" );
+			$('.second_header').css( "min-height", height );
+		});
 	</script>
 </body>
 </html>
