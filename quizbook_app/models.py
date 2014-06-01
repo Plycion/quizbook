@@ -181,6 +181,9 @@ class Solution(models.Model):
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
+	def __unicode__(self):
+		return "quiz: [%s], rank: [%d], creator: [%s]" % (str(self.get_quiz()), str(self.get_rank()), creator.username)
+
 	def get_quiz(self):
 		return self.quiz
 
@@ -221,6 +224,9 @@ class Grade(models.Model):
 	created_at  = models.DateTimeField(auto_now_add=True)
 	updated_at  = models.DateTimeField(auto_now=True)
 
+	def __unicode__(self):
+		return str(self.get_grade())
+
 	def get_grade(self):
 		return self.grade
 
@@ -231,8 +237,6 @@ class UserProfile(models.Model):
 
 class Practice(models.Model):
 	user          = models.ForeignKey(User)
-	# record_tokens = models.ManyToManyField(QuizRecord, through='RecordToken', related_name='quiz_records')
-	# temp_quizzes = models.ManyToManyField(Quiz, related_name='quizzes')
 	
 	def __unicode__(self):
 		weights = []
@@ -244,11 +248,6 @@ class Practice(models.Model):
 
 	def count(self):
 		return RecordToken.objects.filter(practice=self).count()
-
-	# def populate(self):
-	# 	print_terminal("Populating %s" % self.course.name) 
-	# 	for record in self.quiz_records:
-	# 		self.temp_quizzes.add(quiz)
 
 	def is_empty(self):
 		return self.count() == 0
@@ -266,7 +265,6 @@ class Practice(models.Model):
 		if previous:
 			raise models_exceptions.TokenExistsException
 
-		# weight = record.get_last_grade()
 		weight = 0
 		token = RecordToken(practice=self, quiz_record=record, weight=weight)
 		token.save()
