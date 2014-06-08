@@ -24,6 +24,8 @@
 <link href='http://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Bitter:400,700' rel='stylesheet' type='text/css'>
 <link href='http://fonts.googleapis.com/css?family=Nunito:400,300|Maven+Pro:400,500|Raleway:400,500' rel='stylesheet' type='text/css'>
+<link href="http://fonts.googleapis.com/css?family=Lato:100italic,100,300italic,300,400italic,400,700italic,700,900italic,900" rel="stylesheet" type="text/css">
+
 
 <!-- Less -->
 <link rel="stylesheet/less" href="{{ STATIC_URL }}style.less">
@@ -39,23 +41,24 @@
 <body id="index" class="home">
 	<div id="main">
 		<div id="logo">
-			<span><a href="/" style="color: white">Quiz Book</a></span>
-			<span style="font-size: 14px;">{{ quote }}</span>
+			<!-- <span><a href="/" style="color: white">Quiz Book</a></span> -->
+			<!-- <span style="font-size: 14px;">{{ quote }}</span> -->
 			<div id='cssmenu'>
 				<ul>
-				{% if user %}
-					<li><a href="{% url 'home' %}" class="icon-logo">Home</a></li>
-				{% else %}
-					<li><a href="{% url 'home' %}" class="icon-logo">Anonymous</a></li>
-				{% endif %}
-				{% block menu %}{% endblock %}
-				{% if user %}
-					<li class="back"><a href="{% url 'logout' %}">Logout</a></li>
-				{% else %}
-					{% if not home %}
-					<li class="back"><a href="{% url 'home' %}">Sign In</a></li>
+					<li class="main-logo"><a href="{% url 'home' %}">Quiz Book</a></li>
+					{% if user %}
+						<li><a href="{% url 'home' %}">{{ user.username }}</a></li>
+					{% else %}
+						<li><a href="{% url 'home' %}">Anonymous</a></li>
 					{% endif %}
-				{% endif %}
+					{% block menu %}{% endblock %}
+					{% if user %}
+						<li class="back"><a href="{% url 'logout' %}">Logout</a></li>
+					{% else %}
+						{% if not home %}
+						<li class="back"><a href="{% url 'home' %}">Sign In</a></li>
+						{% endif %}
+					{% endif %}
 				</ul>
 			</div>
 		</div>
