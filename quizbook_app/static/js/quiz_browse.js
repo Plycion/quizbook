@@ -57,7 +57,7 @@ $('#prev').click(function() {
 });
 
 this.show_answer = function(data) {
-	var answer = data.answer;
+	var answer = "<p>" + data.answer + "</p>";
 	var creator = data.creator;
 	var rank = data.rank;
 
