@@ -10,7 +10,7 @@ c2 = Course(name="c2", pub_date=timezone.now())
 c1.save()
 c2.save()
 
-c1.create_quiz(question="What is 2+2", answer="4", creator=user)
+c1.create_quiz(question="Let $F$ be a p.r. function generator, where $F_k:\setof{0,1}^n\to \setof{0,1}^n$ for each $k\in\setof{0,1}^n$. Fix $c\geq d$, and construct a function generator $F'_k : \setof{0,1}^{n^c} \to \setof{0,1}^{n^d}$ where we define $F'_k(x)=$ the first $n^d$ bits of $F_{G(k)}(x)$, where $G$ is a p.r. number generator with expansion $n^c$. Show that $F'$ is a p.r. function generator.", answer="4", creator=user)
 c2.create_quiz(question="What is 3+2", answer="5", creator=user)
 
 # p = Practice(user=user)
