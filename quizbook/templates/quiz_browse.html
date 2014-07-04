@@ -62,14 +62,20 @@
 	<div id="random_quizes" style="display: none;">
 		<div id="quiz" style="">
 			<ul>
-				<li>{{ quiz.question }}</li>
+				<li>
+					<p>
+						{{ quiz.question }}
+					</p>
+				</li>
 				<div id="reveal" style="display: none">
 					<li>
 						<a href="#">Reveal answer</a>
 					</li>
 				</div>
 				<div id="answer" style="display: none">
-					{{ quiz.answer }}
+					<p>
+						{{ quiz.answer }}
+					</p>
 				</div>
 				<li><a href="{% url 'courses:add_solution' quiz.course.id quiz.id %}">Add an answer</a></li>
 			</ul>

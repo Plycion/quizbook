@@ -63,7 +63,7 @@ this.show_answer = function(data) {
 
 	$("#reveal").hide();
 	$("#answer").hide();
-	$('#answer').html(answer);
+	$('#answer').html("<p>" + answer + "</p>");
 	$('.second_header').show();
 	MathJax.Hub.Queue(["Typeset",MathJax.Hub,"answer"], function() {
 		$('#creator_span').html(creator);
