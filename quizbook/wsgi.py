@@ -33,7 +33,7 @@ application = get_wsgi_application()
 
 #
 # Heroku added code
-#
+# 
 
 from django.core.wsgi import get_wsgi_application
 from dj_static import Cling
