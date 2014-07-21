@@ -1,4 +1,4 @@
-import sys
+# import sys
 from quizbook_app.models import *
 from django.utils import timezone
 

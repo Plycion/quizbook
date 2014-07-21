@@ -1,15 +1,18 @@
 class Error(Exception):
-   """Base class for other exceptions"""
-   pass
+    """Base class for other exceptions"""
+    pass
+
 
 class PracticeIsEmptyException(Error):
-   """Raised when a practice is empty"""
-   pass
+    """Raised when a practice is empty"""
+    pass
+
 
 class TokenExistsException(Error):
-   """Raised when a token alreay exists"""
-   pass
+    """Raised when a token alreay exists"""
+    pass
+
 
 class PreambleDoesNotExistException(Error):
-   """Raised when a token alreay exists"""
-   pass
+    """Raised when a token alreay exists"""
+    pass

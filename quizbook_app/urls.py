@@ -3,7 +3,8 @@ from quizbook_app import views
 from django.contrib import admin
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
     url(r'^$', views.index, name='index'),
     url(r'^print_courses/$', views.text_courses, name='text_courses'),
     url(r'^latex_courses/$', views.latex_courses, name='latex_courses'),

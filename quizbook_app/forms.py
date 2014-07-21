@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import User
 from django.utils.html import strip_tags
-from quizbook_app.models import Quiz, Course
+
 
 class UserCreateForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.widgets.TextInput(attrs={'placeholder': 'Email'}))
@@ -11,27 +11,47 @@ class UserCreateForm(UserCreationForm):
     username = forms.CharField(widget=forms.widgets.TextInput(attrs={'placeholder': 'Username'}))
     password1 = forms.CharField(widget=forms.widgets.PasswordInput(attrs={'placeholder': 'Password'}))
     password2 = forms.CharField(widget=forms.widgets.PasswordInput(attrs={'placeholder': 'Password Confirmation'}))
- 
+
     def is_valid(self):
         form = super(UserCreateForm, self).is_valid()
         for f, error in self.errors.iteritems():
             if f != '__all_':
                 self.fields[f].widget.attrs.update({'class': 'error', 'value': strip_tags(error)})
         return form
- 
+
     class Meta:
         # order to render fields
         fields = ['email', 'username', 'first_name', 'last_name', 'password1',
                   'password2']
         model = User
 
+
 class AuthenticateForm(AuthenticationForm):
     username = forms.CharField(widget=forms.widgets.TextInput(attrs={'placeholder': 'Username'}))
     password = forms.CharField(widget=forms.widgets.PasswordInput(attrs={'placeholder': 'Password'}))
- 
+
     def is_valid(self):
         form = super(AuthenticateForm, self).is_valid()
         for f, error in self.errors.iteritems():
             if f != '__all__':
                 self.fields[f].widget.attrs.update({'class': 'error', 'value': strip_tags(error)})
         return form
+
+
+class NewCourseForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    description = forms.CharField(max_length=2000, required=False)
+
+
+class NewQuizForm(forms.Form):
+    question = forms.CharField(max_length=2000)
+    answer = forms.CharField(max_length=2000)
+
+
+class UpdateQuizForm(forms.Form):
+    grade = forms.IntegerField()
+
+
+class EditQuizForm(forms.Form):
+    question = forms.CharField(max_length=2000)
+    answer = forms.CharField(max_length=2000)

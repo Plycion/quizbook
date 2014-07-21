@@ -1,6 +1,6 @@
 import dj_database_url
 import os
-from quizbook.quizbook.settings.common import *
+from quizbook.settings.common import *
 
 
 DEBUG = False
