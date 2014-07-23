@@ -219,7 +219,7 @@ def new_course_process(request):
 def new_quiz_page(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     user = get_user_or_none(request)
-    context = {'course': course, 'user': user}
+    context = {'course': course, 'user': user, 'preamble': get_preamble_text()}
     return render(request, 'create_quiz.html', context)
 
 
