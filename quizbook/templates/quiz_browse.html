@@ -7,85 +7,85 @@
 {% block title %}Course: {{ parent_course.name }}{% endblock %}
 
 {% block header%}
-	Course: {{ parent_course.name }} <br>
-	Creator: {{ quiz.creator }} <br>
-	{% if user_enrolled %}
-		Last recorded grade: {{ last_grade.grade }}
-		<div id="show_grade" class="white-link"><a href="">Show grade history</a></div>
-		<div id="hide_grade"><a href="">Hide grade history</a></div>
-		<div id="grade_history">
-			<csv id="traffic">
-				date,username,grade
-				{% for grade in grade_list %}
-				"{{  grade.created_at }}", {{  user.username }}, {{ grade.grade }},
-				{% endfor %}
-			</csv>
-			<div id="graph">
-			  <chart data="#traffic"
-					 map-length="grade"
-					 scale-y-linear="0 5">
-				<guide-y></guide-y>
-				<repeat>
-				  <bar></bar>
-				  <annotation class="bottom">
-				  </annotation>
-				</repeat>
-			  </chart>
-			</div>
-		</div>
-	{% endif %}
+Course: {{ parent_course.name }} <br>
+Creator: {{ quiz.creator }} <br>
+{% if user_enrolled %}
+Last recorded grade: {{ last_grade.grade }}
+<div id="show_grade" class="white-link"><a href="">Show grade history</a></div>
+<div id="hide_grade"><a href="">Hide grade history</a></div>
+<div id="grade_history">
+	<csv id="traffic">
+	date,username,grade
+	{% for grade in grade_list %}
+	"{{  grade.created_at }}", {{  user.username }}, {{ grade.grade }},
+	{% endfor %}
+	</csv>
+	<div id="graph">
+		<chart data="#traffic"
+		map-length="grade"
+		scale-y-linear="0 5">
+		<guide-y></guide-y>
+		<repeat>
+		<bar></bar>
+		<annotation class="bottom">
+		</annotation>
+		</repeat>
+		</chart>
+	</div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block second_header %}
-	Creator: <span id='creator_span'></span> </br>
-	Rank: <span id='rank_span'></span> </br>
-	<div id='upvote_button' class='white-link' onclick='upvote();' data_url="{% url 'courses:upvote_solution' quiz.course.id quiz.id %}">
-		<a herf=''>Upvote</a>
-	</div>
-	<div id="delete_solution_button" class='white-link' onclick="delete_solution();" data_url="{% url 'courses:delete_solution' quiz.course.id quiz.id %}"></div>
+Creator: <span id='creator_span'></span> </br>
+Rank: <span id='rank_span'></span> </br>
+<div id='upvote_button' class='white-link' onclick='upvote();' data_url="{% url 'courses:upvote_solution' quiz.course.id quiz.id %}">
+	<a herf=''>Upvote</a>
+</div>
+<div id="delete_solution_button" class='white-link' data_url="{% url 'courses:delete_solution' quiz.course.id quiz.id %}"></div>
 {% endblock %}
 
 {% block menu %}
 
 {% if user_is_creator %}
-	<li><a href="{% url 'courses:edit_quiz' parent_course.id quiz.id %}">Edit</a></li>
-	<li id="delete_button" id="delete_button" name="delete_button"><a href="#">Delete</a></li>
-	<li id="really_delete_button" name="really_delete_button"><a href="{% url 'courses:delete_quiz' parent_course.id quiz.id %}">Confirm</a></li>
+<li><a href="{% url 'courses:edit_quiz' parent_course.id quiz.id %}">Edit</a></li>
+<li id="delete_button" id="delete_button" name="delete_button"><a href="#">Delete</a></li>
+<li id="really_delete_button" class="confirm_alert" name="really_delete_button"><a href="{% url 'courses:delete_quiz' parent_course.id quiz.id %}">Confirm</a></li>
 {% endif %}
 
 <li class="back"><a href="{% url 'courses:detail' quiz.course.id %}">Back to {{ quiz.course.name }}</a></li>
 {% endblock %}
 
 {% block body %}
-	{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
-	<div id="random_quizes" style="display: none;">
-		<div id="quiz" style="">
-			<ul>
+<div id="random_quizes" style="display: none;">
+	<div id="quiz" style="">
+		<ul>
+			<li>
+			<p>
+			{{ quiz.question }}
+			</p>
+			</li>
+			<div id="reveal" style="display: none">
 				<li>
-					<p>
-						{{ quiz.question }}
-					</p>
+				<a href="#">Reveal answer</a>
 				</li>
-				<div id="reveal" style="display: none">
-					<li>
-						<a href="#">Reveal answer</a>
-					</li>
-				</div>
-				<div id="answer" style="display: none">
-					<p>
-						{{ quiz.answer }}
-					</p>
-				</div>
-				<li><a href="{% url 'courses:add_solution' quiz.course.id quiz.id %}">Add an answer</a></li>
-			</ul>
-		</div>
+			</div>
+			<div id="answer" style="display: none">
+				<p>
+				{{ quiz.answer }}
+				</p>
+			</div>
+			<li><a href="{% url 'courses:add_solution' quiz.course.id quiz.id %}">Add an answer</a></li>
+		</ul>
 	</div>
+</div>
 
-	<nav>
-		<span id="prev" class="cbp-fwprev">&lt;</span>
-		<span id="next" data_index="1" data_max="{{ max }}" data_quiz_id="{{ quiz.id }}" class="cbp-fwnext">&gt;</span>
-	</nav>
+<nav>
+<span id="prev" class="cbp-fwprev">&lt;</span>
+<span id="next" data_index="1" data_max="{{ max }}" data_quiz_id="{{ quiz.id }}" class="cbp-fwnext">&gt;</span>
+</nav>
 
-	<script src="{{ STATIC_URL }}js/quiz_browse.js"></script>
+<script src="{{ STATIC_URL }}js/quiz_browse.js"></script>
 {% endblock %}
