@@ -23,4 +23,4 @@ Requirements
 Notes
 --------
 
-On ubuntu you need to run `sudo apt-get install libpq-dev` to install the psycopg2 requirement.
+On ubuntu you need to run `sudo apt-get install libpq-dev python-dev` to install the psycopg2 requirement.
