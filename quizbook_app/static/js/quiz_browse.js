@@ -123,7 +123,25 @@ this.upvote = function() {
 	});
 }
 
-this.delete_solution = function() {
+this.confirmation = function(id) {
+	var selector_id = id;
+	id = id.substring(1, id.length);
+ 	$( selector_id ).hide();
+	var new_id = "confirm" + id;
+	var delete_function = "confirmed_" + id + "()";
+	var new_div = "<div id='" + new_id + "' class='confirm_alert' onclick='" + delete_function + "'><a href='#'>Confirm</a></div>";
+	$( new_div ).insertAfter( selector_id ).hide().fadeIn();
+ 	$( "#" + new_id ).delay(3000).fadeOut(0, function() {
+ 		$( selector_id ).show();
+		$( "#" + new_id ).remove();
+	});
+}
+
+$( '#delete_solution_button' ).click(function(){
+	confirmation( '#delete_solution_button' );
+});
+
+this.confirmed_delete_solution_button = function() {
 	var quiz_id = $('#next').attr("data_quiz_id");
 	var index = parseInt($('#next').attr("data_index"), 10);
 	var url_var = $('#delete_solution_button').attr("data_url");
