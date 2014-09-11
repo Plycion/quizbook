@@ -24,6 +24,7 @@ html,body,div,span,applet,object,iframe,a,abbr,acronym,address,big,cite,code,del
 @color1: black;
 @color2: #009ADD;
 @color3: #F22447;
+@color4: #F54765;
 
 html, body, div, span, applet, object, iframe, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite, code,
@@ -88,10 +89,10 @@ table {
 	border-spacing: 0;
 }
 
-h2 {
-	font-size: 30px;
-	margin: 0px 0px 15px 0px;
-}
+// h2 {
+// 	font-size: 30px;
+// 	margin: 0px 0px 15px 0px;
+// }
 
 h3 {
 	margin: 20px 0 10px 0;
@@ -250,6 +251,12 @@ input[type="submit"] {
 }
 
 .headers_dimensions() {
+	.clean_fonts;
+	font-size: 16px;
+	color: white;
+	margin-bottom: 20px;
+	line-height: 20px;
+	height: 100%;
 	@header_pad_vertical: 12px;
 	@header_pad_horizontal: 20px;
 	@width: (@main_width/2) - 2*@header_pad_horizontal;
@@ -258,11 +265,7 @@ input[type="submit"] {
 
 .header_box {
 	float: left;
-	.clean_fonts;
-	font-size: 16px;
-
 	background: @color2;
-	color: white;
 
 	width: @width;
 	padding: @padding;
@@ -274,15 +277,18 @@ input[type="submit"] {
 }
 
 h1 {
-	.clean_fonts;
-	font-size: 16px;
+	
 	color: white;
 	background: @color3;
 	width: @width * 0.75;
 	padding: @padding;
-	margin-bottom: 20px;
-	line-height: 20px;
-	height: 100%;
+	.headers_dimensions();
+}
+
+h2 {
+	background: @color4;
+	width: @width * 0.5;
+	padding: @padding;
 	.headers_dimensions();
 }
 
