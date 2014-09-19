@@ -2,6 +2,7 @@ from django.conf.urls import patterns, url
 from quizbook_app import views
 from django.contrib import admin
 admin.autodiscover()
+from quizbook_app import views as quizbook_app_views
 
 urlpatterns = patterns(
     '',
@@ -10,7 +11,6 @@ urlpatterns = patterns(
     url(r'^latex_courses/$', views.latex_courses, name='latex_courses'),
     url(r'^new_course/$', views.new_course_page, name='new_course_page'),
     url(r'^new_course/process$', views.new_course_process, name='new_course_process'),
-
 
     url(r'^(?P<course_id>\d+)/$', views.detail, name='detail'),
     url(r'^(?P<course_id>\d+)/practice/$', views.practice_question, name='practise'),

@@ -4,6 +4,9 @@ import json
 import os
 import sys
 
+from django.views.decorators.csrf import csrf_exempt
+from time import sleep
+
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
@@ -51,6 +54,11 @@ def add_solution(request, course_id, quiz_id):
     }
     return render(request, 'create_solution.html', context)
 
+
+@csrf_exempt
+def add_solution_ajax(request):
+    sleep(2)
+    return HttpResponse("success")
 
 @login_required
 def upvote_solution(request, course_id, quiz_id):

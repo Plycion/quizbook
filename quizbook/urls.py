@@ -14,4 +14,6 @@ urlpatterns = patterns(
     url(r'^admin/', include(admin.site.urls)),
     url(r'^get_solution/$', quizbook_app_views.get_solution, name='get_solution'),
     url(r'^about/$', views.get_about, name='about'),
+    url(r'^add_solution/*$', quizbook_app_views.add_solution_ajax),
+
 )

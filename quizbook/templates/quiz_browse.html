@@ -2,6 +2,8 @@
 
 {% block morehead%}
 <link rel="stylesheet" href="{{ STATIC_URL }}css/quiz_browse.css">
+<link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
 {% endblock %}
 
 {% block title %}Course: {{ parent_course.name }}{% endblock %}
@@ -72,12 +74,9 @@ Rank: <span id='rank_span'></span> </br>
 				<a href="#">Reveal answer</a>
 				</li>
 			</div>
-			<div id="answer" style="display: none">
-				<p>
-				{{ quiz.answer }}
-				</p>
+			<div id="inputPreview" >
+
 			</div>
-			<li><a href="{% url 'courses:add_solution' quiz.course.id quiz.id %}">Add an answer</a></li>
 		</ul>
 	</div>
 </div>
@@ -88,4 +87,8 @@ Rank: <span id='rank_span'></span> </br>
 </nav>
 
 <script src="{{ STATIC_URL }}js/quiz_browse.js"></script>
+<script src="/static/js/react/react.js"></script>
+<script src="/static/js/react/JSXTransformer.js"></script>
+<script src="/static/js/underscore/underscore.js"></script>
+<script type="text/jsx" src="/static/js/question/add_answer_react.jsx"></script>
 {% endblock %}
